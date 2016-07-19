@@ -10,10 +10,8 @@
 #define MAINCOMPONENT_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-
-#include "faust/gui/LayoutManagerUI.h"
+#include "LayoutManagerUI.h"
 #include "faust/gui/APIUI.h"
-
 #include "JUCEUI.h"
 
 #include "faust_dsp.h"

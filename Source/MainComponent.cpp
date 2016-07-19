@@ -11,7 +11,11 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "LayoutManagerUI.h"
+#include "faust/dsp/poly-dsp.h"
+
 #include "faust/gui/APIUI.h"
+#include "faust/gui/MidiUI.h"
+#include "juce-midi.h"
 #include "JUCEUI.h"
 
 #include "faust_dsp.h"
@@ -35,14 +39,24 @@ class MainContentComponent : public AudioAppComponent
             //fOpenGLContext.attachTo(*this);
             fDSP = new mydsp();
             
+            // Test of polyphgonic mode (MIDI OK but UI still now working....)
+            //fDSP = new mydsp_poly(new mydsp(), 4, true);
+            
             // Prepare layout wth the component size
             fLayoutUI = new LayoutManagerUI();
             fDSP->buildUserInterface(fLayoutUI);
             fLayoutUI->setSize(1024, 768);
             
             fJUCEUI = new JUCEUI(this, fLayoutUI);
+            
+            fMIDIHandler = new juce_midi();
+            fMIDIUI = new MidiUI(fMIDIHandler);
+            
             fDSP->buildUserInterface(fJUCEUI);
             fDSP->buildUserInterface(&fAPIUI);
+            fDSP->buildUserInterface(fMIDIUI);
+            
+            fMIDIUI->run();
             
             fLayoutUI->write(&std::cout);
 
@@ -59,6 +73,8 @@ class MainContentComponent : public AudioAppComponent
             delete fDSP;
             delete fJUCEUI;
             delete fLayoutUI;
+            delete fMIDIUI;
+            delete fMIDIHandler;
         }
 
         //==============================================================================
@@ -136,6 +152,8 @@ class MainContentComponent : public AudioAppComponent
         // Your private member variables go here...
         dsp* fDSP;
         JUCEUI* fJUCEUI;
+        juce_midi* fMIDIHandler;
+        MidiUI* fMIDIUI;
         LayoutManagerUI* fLayoutUI;
         APIUI fAPIUI;
         OpenGLContext fOpenGLContext;

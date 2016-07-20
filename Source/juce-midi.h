@@ -33,77 +33,90 @@
 
 class MapUI;
 
-class juce_midi : public midi_handler, public MidiInputCallback {
+struct juce_midi_handler : public midi_handler {
+    
+    
+    juce_midi_handler():midi_handler("JUCE")
+    {}
+    
+    void decodeBuffer(MidiBuffer& midiMessages)
+    {
+        MidiMessage msg;
+        int ignore;
+
+        for (MidiBuffer::Iterator it(midiMessages); it.getNextEvent(msg, ignore);) {
+            decodeMessage(msg);
+        }
+    }
+    
+    void decodeMessage(const MidiMessage& message)
+    {
+        const uint8* data = message.getRawData();
+        
+        if (message.isNoteOff()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                fMidiInputs[i]->keyOff(0, message.getChannel(), data[1], data[2]);
+            }
+        } else if (message.isNoteOn()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                if (data[1] != 0) {
+                    fMidiInputs[i]->keyOn(0, message.getChannel(), data[1], data[2]);
+                } else {
+                    fMidiInputs[i]->keyOff(0, message.getChannel(), data[1], data[2]);
+                }
+            }
+        } else if (message.isAftertouch()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                fMidiInputs[i]->keyPress(0, message.getChannel(), data[1], data[2]);
+            }
+        } else if (message.isController()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                fMidiInputs[i]->ctrlChange(0, message.getChannel(), data[1], data[2]);
+            }
+        } else if (message.isProgramChange()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                fMidiInputs[i]->progChange(0, message.getChannel(), data[1]);
+            }
+        } else if (message.isChannelPressure()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                fMidiInputs[i]->chanPress(0, message.getChannel(), data[1]);
+            }
+        } else if (message.isPitchWheel()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                fMidiInputs[i]->pitchWheel(0, message.getChannel(), ((data[1] * 128.0 + data[2]) - 8192) / 8192.0);
+            }
+        } else if (message.isMidiClock()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                fMidiInputs[i]->clock(message.getTimeStamp());
+            }
+        } else if (message.isMidiStart()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                fMidiInputs[i]->start_sync(message.getTimeStamp());
+            }
+        } else if (message.isMidiStop()) {
+            for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
+                fMidiInputs[i]->stop_sync(message.getTimeStamp());
+            }
+        } else {
+            std::cerr << "Unnued MIDI message" << std::endl;
+        }
+    }
+
+};
+
+class juce_midi : public juce_midi_handler, public MidiInputCallback {
 
     private:
     
         MidiInput* fMidiIn;
         MidiOutput* fMidiOut;
     
-        void decodeMessage(const MidiMessage& message)
-        {
-            const uint8* data = message.getRawData();
-            
-            if (message.isNoteOff()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    fMidiInputs[i]->keyOff(0, message.getChannel(), data[1], data[2]);
-                }
-            } else if (message.isNoteOn()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    if (data[1] != 0) {
-                        fMidiInputs[i]->keyOn(0, message.getChannel(), data[1], data[2]);
-                    } else {
-                        fMidiInputs[i]->keyOff(0, message.getChannel(), data[1], data[2]);
-                    }
-                }
-            } else if (message.isAftertouch()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    fMidiInputs[i]->keyPress(0, message.getChannel(), data[1], data[2]);
-                }
-            } else if (message.isController()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    fMidiInputs[i]->ctrlChange(0, message.getChannel(), data[1], data[2]);
-                }
-            } else if (message.isProgramChange()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    fMidiInputs[i]->progChange(0, message.getChannel(), data[1]);
-                }
-            } else if (message.isChannelPressure()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    fMidiInputs[i]->chanPress(0, message.getChannel(), data[1]);
-                }
-            } else if (message.isPitchWheel()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    fMidiInputs[i]->pitchWheel(0, message.getChannel(), ((data[1] * 128.0 + data[2]) - 8192) / 8192.0);
-                }
-            } else if (message.isMidiClock()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    fMidiInputs[i]->clock(message.getTimeStamp());
-                }
-            } else if (message.isMidiStart()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    fMidiInputs[i]->start_sync(message.getTimeStamp());
-                }
-            } else if (message.isMidiStop()) {
-                for (unsigned int i = 0; i < fMidiInputs.size(); i++) {
-                    fMidiInputs[i]->stop_sync(message.getTimeStamp());
-                }
-            } else {
-                std::cerr << "Unnued MIDI message" << std::endl;
-            }
-        }
-
         void handleIncomingMidiMessage(MidiInput*, const MidiMessage& message)
         {
             decodeMessage(message);
         }
     
     public:
-    
-    
-    
-        juce_midi():midi_handler("JUCE")
-        {}
     
         virtual ~juce_midi()
         {

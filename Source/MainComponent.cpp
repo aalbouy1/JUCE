@@ -16,7 +16,8 @@
 #include "faust/gui/APIUI.h"
 #include "faust/gui/MidiUI.h"
 #include "juce-midi.h"
-#include "JUCEUI.h"
+#include "JuceUI.h"
+#include "JuceOSC.h"
 
 #include "faust_dsp.h"
 
@@ -28,7 +29,7 @@ ztimedmap GUI::gTimedZoneMap;
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent : public AudioAppComponent
+class MainContentComponent : public AudioAppComponent, private Timer
 {
     
     public:
@@ -39,7 +40,7 @@ class MainContentComponent : public AudioAppComponent
             //fOpenGLContext.attachTo(*this);
             fDSP = new mydsp();
             
-            // Test of polyphgonic mode (MIDI OK but UI still now working....)
+            // Test of polyphgonic mode (MIDI OK but UI still not working....)
             //fDSP = new mydsp_poly(new mydsp(), 4, true);
             
             // Prepare layout wth the component size
@@ -47,16 +48,20 @@ class MainContentComponent : public AudioAppComponent
             fDSP->buildUserInterface(fLayoutUI);
             fLayoutUI->setSize(1024, 768);
             
-            fJUCEUI = new JUCEUI(this, fLayoutUI);
+            fJUCEUI = new JuceUI(this, fLayoutUI);
             
             fMIDIHandler = new juce_midi();
             fMIDIUI = new MidiUI(fMIDIHandler);
             
+            fOSCUI = new JuceOSC("127.0.0.1", 5510, 5511);
+            
             fDSP->buildUserInterface(fJUCEUI);
             fDSP->buildUserInterface(&fAPIUI);
             fDSP->buildUserInterface(fMIDIUI);
+            fDSP->buildUserInterface(fOSCUI);
             
             fMIDIUI->run();
+            fOSCUI->run();
             
             fLayoutUI->write(&std::cout);
 
@@ -64,17 +69,20 @@ class MainContentComponent : public AudioAppComponent
             setAudioChannels(fDSP->getNumInputs(), fDSP->getNumOutputs());
             
             setSize(1024, 768);
+            
+            startTimerHz(25);
         }
 
         ~MainContentComponent()
         {
+            stopTimer();
             fOpenGLContext.detach();
             shutdownAudio();
-            delete fDSP;
-            delete fJUCEUI;
-            delete fLayoutUI;
-            delete fMIDIUI;
-            delete fMIDIHandler;
+        }
+    
+        void timerCallback() override
+        {
+            GUI::updateAllGuis();
         }
 
         //==============================================================================
@@ -148,13 +156,13 @@ class MainContentComponent : public AudioAppComponent
 
     private:
         //==============================================================================
-
         // Your private member variables go here...
-        dsp* fDSP;
-        JUCEUI* fJUCEUI;
-        juce_midi* fMIDIHandler;
-        MidiUI* fMIDIUI;
-        LayoutManagerUI* fLayoutUI;
+        ScopedPointer<dsp> fDSP;
+        ScopedPointer<JuceUI> fJUCEUI;
+        ScopedPointer<juce_midi> fMIDIHandler;
+        ScopedPointer<MidiUI> fMIDIUI;
+        ScopedPointer<LayoutManagerUI> fLayoutUI;
+        ScopedPointer<JuceOSC> fOSCUI;
         APIUI fAPIUI;
         OpenGLContext fOpenGLContext;
  

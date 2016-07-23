@@ -31,6 +31,7 @@
 #include "faust/gui/GUI.h"
 #include "faust/gui/MetaDataUI.h"
 #include "faust/gui/ValueConverter.h"
+
 #include "../JuceLibraryCode/JuceHeader.h"
 
 //#include <android/log.h>
@@ -138,7 +139,7 @@ class uiSlider : public uiItem, public Slider::Listener {
     
 };
 
-class JUCEUI : public GUI, public MetaDataUI {
+class JuceUI : public GUI, public MetaDataUI {
     
     private:
     
@@ -148,9 +149,9 @@ class JUCEUI : public GUI, public MetaDataUI {
   
     public:
     
-        JUCEUI(Component* component, LayoutManagerUI* layout):fParent(component), fLayout(layout) {}
+        JuceUI(Component* component, LayoutManagerUI* layout):fParent(component), fLayout(layout) {}
     
-        virtual ~JUCEUI() {}
+        virtual ~JuceUI() {}
     
         void resized()
         {

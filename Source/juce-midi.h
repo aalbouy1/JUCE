@@ -35,7 +35,6 @@ class MapUI;
 
 struct juce_midi_handler : public midi_handler {
     
-    
     juce_midi_handler():midi_handler("JUCE")
     {}
     
@@ -145,38 +144,38 @@ class juce_midi : public juce_midi_handler, public MidiInputCallback {
         
         MapUI* keyOn(int channel, int pitch, int velocity)
         {
-            fMidiOut->sendMessageNow(MidiMessage::noteOn(channel, pitch, uint8(velocity)));
+            fMidiOut->sendMessageNow(MidiMessage::noteOn(channel + 1, pitch, uint8(velocity)));
             return 0;
         }
         
         void keyOff(int channel, int pitch, int velocity) 
         {
-            fMidiOut->sendMessageNow(MidiMessage::noteOff(channel, pitch, uint8(velocity)));
+            fMidiOut->sendMessageNow(MidiMessage::noteOff(channel + 1, pitch, uint8(velocity)));
         }
         
         void ctrlChange(int channel, int ctrl, int val) 
         {
-            fMidiOut->sendMessageNow(MidiMessage::controllerEvent(channel, ctrl, uint8(val)));
+            fMidiOut->sendMessageNow(MidiMessage::controllerEvent(channel + 1, ctrl, uint8(val)));
         }
         
         void chanPress(int channel, int press) 
         {
-            fMidiOut->sendMessageNow(MidiMessage::channelPressureChange(channel, press));
+            fMidiOut->sendMessageNow(MidiMessage::channelPressureChange(channel + 1, press));
         }
         
         void progChange(int channel, int pgm) 
         {
-            fMidiOut->sendMessageNow(MidiMessage::programChange(channel, pgm));
+            fMidiOut->sendMessageNow(MidiMessage::programChange(channel + 1, pgm));
         }
           
         void keyPress(int channel, int pitch, int press) 
         {
-            fMidiOut->sendMessageNow(MidiMessage::aftertouchChange(channel, pitch, press));
+            fMidiOut->sendMessageNow(MidiMessage::aftertouchChange(channel + 1, pitch, press));
         }
    
         void pitchWheel(int channel, int wheel) 
         {
-            fMidiOut->sendMessageNow(MidiMessage::pitchWheel(channel, wheel));
+            fMidiOut->sendMessageNow(MidiMessage::pitchWheel(channel + 1, wheel));
         }
         
         void ctrlChange14bits(int channel, int ctrl, int value) {}

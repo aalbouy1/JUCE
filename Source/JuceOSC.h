@@ -42,7 +42,7 @@ class oscItem : public uiItem {
         
         oscItem(OSCSender* sender, GUI* ui, const String& path, FAUSTFLOAT* zone)
             :uiItem(ui, zone), fSender(sender), fPath(path) {}
-        ~oscItem()
+        virtual ~oscItem()
         {}
     
         virtual void reflectZone()
@@ -71,17 +71,15 @@ class JuceOSC : private OSCReceiver, private OSCReceiver::Listener<OSCReceiver::
             :fIP(ip), fInputPort(in_port), fOutputPort(out_port)
         {}
     
-        ~JuceOSC()
+        virtual ~JuceOSC()
         {}
     
         void oscMessageReceived(const OSCMessage& message) override
         {
             String address = message.getAddressPattern().toString();
-            std::cout << "oscMessageReceived " << address.toStdString() << std::endl;
             
             for (int i = 0; i < message.size(); ++i) {
                 if (message[i].isFloat32()) {
-                    std::cout << "oscMessageReceived " << address << " " << message[i].getFloat32() << std::endl;
                     fAPIUI.setParamValue(fAPIUI.getParamIndex(address.toStdString().c_str()), message[i].getFloat32());
                 // "get" message with correct address
                 } else if (message[i].isString()
@@ -94,7 +92,10 @@ class JuceOSC : private OSCReceiver, private OSCReceiver::Listener<OSCReceiver::
                 } else if (message[i].isString()
                            && address.equalsIgnoreCase("/*")
                            && message[i].getString().equalsIgnoreCase("hello")) {
-                    fSender.send("/TOTO", fIP, fInputPort, fOutputPort);
+                    String path = fAPIUI.getParamAddress(0);
+                    int pos1 = path.indexOfChar('/');
+                    int pos2 = path.indexOfChar(pos1 + 1, '/');
+                    fSender.send(path.substring(pos1, pos2), fIP, fInputPort, fOutputPort);
                 }
             }
         }

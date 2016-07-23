@@ -26,8 +26,6 @@
 #ifndef __juce_midi__
 #define __juce_midi__
  
-#include <iostream>
-#include <cstdlib>
 #include "juce_MidiMessage.h"
 #include "faust/midi/midi.h"
 
@@ -97,7 +95,7 @@ struct juce_midi_handler : public midi_handler {
                 fMidiInputs[i]->stop_sync(message.getTimeStamp());
             }
         } else {
-            std::cerr << "Unnued MIDI message" << std::endl;
+            std::cerr << "Unused MIDI message" << std::endl;
         }
     }
 

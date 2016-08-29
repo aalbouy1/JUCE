@@ -47,7 +47,7 @@ class uiButton : public uiItem, public Button::Listener
     
     public:
     
-        uiButton (GUI* ui, FAUSTFLOAT* zone, Button* button) : uiItem(ui, zone), fButton(button)
+        uiButton(GUI* ui, FAUSTFLOAT* zone, Button* button) : uiItem(ui, zone), fButton(button)
         {
             fButton->addListener(this);
         }
@@ -97,7 +97,7 @@ class uiSlider : public uiItem, public Slider::Listener {
     
         uiSlider(GUI* ui, FAUSTFLOAT* zone, Slider* slider, const char* label,
                  FAUSTFLOAT cur, FAUSTFLOAT lo, FAUSTFLOAT hi, FAUSTFLOAT step,
-                 MetaDataUI::Scale scale, LayoutManagerUI* layout)
+                 MetaDataUI::Scale scale, LayoutManagerUI* layout, bool horizontal)
             : uiItem(ui, zone), fSlider(slider), fCur(cur), fMin(lo), fMax(hi), fStep(step)
         {
             // select appropriate converter according to scale mode
@@ -108,8 +108,20 @@ class uiSlider : public uiItem, public Slider::Listener {
             LayoutRect* rect = layout->getZoneRect(zone);
             slider->setBounds(rect->fX, rect->fY, rect->fW, rect->fH);
             
+            {
+                Rectangle<int> local = slider->getLocalBounds();
+                std::cout << "uiSlider getLocalBounds 0 " << local.getX() << " " << local.getY()  << " " << local.getWidth()  << " " << local.getHeight() << std::endl;
+            }
+            
             fLabel = new Label(String::empty, label);
+            fLabel->setJustificationType((horizontal) ? Justification::centredTop :Justification::centredBottom);
+            
             fLabel->attachToComponent(slider, false);
+            
+            {
+                Rectangle<int> local = slider->getLocalBounds();
+                std::cout << "uiSlider getLocalBounds 1 " << local.getX() << " " << local.getY()  << " " << local.getWidth()  << " " << local.getHeight() << std::endl;
+            }
          
             fSlider->addListener(this);
             fSlider->setRange(fMin, fMax, fStep);
@@ -133,7 +145,7 @@ class uiSlider : public uiItem, public Slider::Listener {
     
         void sliderValueChanged(Slider*) override
         {
-            printf("fSlider->getValue() %f\n", fSlider->getValue());
+            std::cout << "fSlider->getValue() " << fSlider->getValue() << std::endl;
             modifyZone(fSlider->getValue());
         }
     
@@ -159,8 +171,14 @@ class JuceUI : public GUI, public MetaDataUI {
             std::map<FAUSTFLOAT*, Component*>::iterator it;
             
             for (it = fZoneComponentMap.begin(); it != fZoneComponentMap.end(); ++it) {
-                assert(fLayout->fZoneLayout.find((*it).first) != fLayout->fZoneLayout.end());
-                LayoutRect* rect = fLayout->fZoneLayout[(*it).first];
+                LayoutRect* rect = fLayout->getLayoutRect((*it).first);
+                
+                /*
+                (*it).second->setBounds(rect->fX + kHorizontalBorder, rect->fY + kVerticalBorder, rect->fW - kHorizontalBorder*2, rect->fH - kVerticalBorder*2);
+                */
+                
+                std::cout << "resized : " << rect->fX << " " << rect->fY << " " << rect->fW << " " << rect->fH << std::endl;
+           
                 (*it).second->setBounds(rect->fX, rect->fY, rect->fW, rect->fH);
             }
         }
@@ -185,6 +203,7 @@ class JuceUI : public GUI, public MetaDataUI {
             uiButton* c = new uiButton(this, zone, button);
             fParent->addAndMakeVisible(button);
         }
+    
         virtual void addCheckButton(const char* label, FAUSTFLOAT* zone)
         {
             /*
@@ -225,7 +244,7 @@ class JuceUI : public GUI, public MetaDataUI {
             slider->setTextBoxStyle(Slider::TextBoxBelow, false, 80, 20);
             fZoneComponentMap[zone] = slider;
             
-            uiSlider* c = new uiSlider(this, zone, slider, label, init, min, max, step, getScale(zone), fLayout);
+            uiSlider* c = new uiSlider(this, zone, slider, label, init, min, max, step, getScale(zone), fLayout, false);
             fParent->addAndMakeVisible(slider);
         }
     
@@ -238,7 +257,7 @@ class JuceUI : public GUI, public MetaDataUI {
             slider->setTextBoxStyle(Slider::TextBoxLeft, false, 80, 20);
             fZoneComponentMap[zone] = slider;
             
-            uiSlider* c = new uiSlider(this, zone, slider, label, init, min, max, step, getScale(zone), fLayout);
+            uiSlider* c = new uiSlider(this, zone, slider, label, init, min, max, step, getScale(zone), fLayout, false);
             fParent->addAndMakeVisible(slider);
         }
     
@@ -263,7 +282,7 @@ class JuceUI : public GUI, public MetaDataUI {
             slider->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
             fZoneComponentMap[zone] = slider;
             
-            uiSlider* c = new uiSlider(this, zone, slider, label, init, min, max, step, getScale(zone), fLayout);
+            uiSlider* c = new uiSlider(this, zone, slider, label, init, min, max, step, getScale(zone), fLayout, true);
             fParent->addAndMakeVisible(slider);
         }
     
@@ -276,7 +295,7 @@ class JuceUI : public GUI, public MetaDataUI {
             slider->setTextBoxStyle(Slider::TextBoxLeft, false, 80, 20);
             fZoneComponentMap[zone] = slider;
             
-            uiSlider* c = new uiSlider(this, zone, slider, label, init, min, max, step, getScale(zone), fLayout);
+            uiSlider* c = new uiSlider(this, zone, slider, label, init, min, max, step, getScale(zone), fLayout, true);
             fParent->addAndMakeVisible(slider);
         }
     

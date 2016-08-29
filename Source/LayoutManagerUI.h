@@ -43,14 +43,14 @@
 #define kKnobWidth 20
 #define kKnobHeight 20
 
-#define kVSliderWidth 50
-#define kVSliderHeight 200
+#define kVSliderWidth 150
+#define kVSliderHeight 300
 
-#define kHSliderWidth 200
-#define kHSliderHeight 20
+#define kHSliderWidth 300
+#define kHSliderHeight 150
 
-#define kButtonWidth 50
-#define kButtonHeight 20
+#define kButtonWidth 100
+#define kButtonHeight 100
 
 #define kCheckButtonWidth 10
 #define kCheckButtonHeight 10
@@ -72,6 +72,8 @@
 #define kHorizontalSpace 0
 #define kVerticalSpace 0
 
+#define kHorizontalBorder 50
+#define kVerticalBorder 50
 
 enum Layout {
     kHorizontalLayout,
@@ -179,51 +181,75 @@ struct LayoutComponentGroup : public LayoutComponent {
         int minimum_w = getPreferredWidth();
         int minimum_h = getPreferredHeight();
         
-        if (minimum_w > w) {
-            std::cout << "setRectangle getPreferredWidth : " << minimum_w << " more than : " << w << std::endl;
-        }
+        //if (minimum_w > w) {
+        //    std::cout << "setRectangle getPreferredWidth : " << minimum_w << " more than : " << w << std::endl;
+        //}
         
-        if (minimum_h > h) {
-            std::cout << "setRectangle getPreferredHeight : " << minimum_h << " more than : " << h << std::endl;
-        }
+        //if (minimum_h > h) {
+        //    std::cout << "setRectangle getPreferredHeight : " << minimum_h << " more than : " << h << std::endl;
+        //}
         
         int cur_x = x;
         int cur_y = y;
+        
+        /*
         float ratio_x = float(w)/float(minimum_w);
         float ratio_y = float(h)/float(minimum_h);
+        */
         
-        std::cout << "setRectangle ratio_x : " << ratio_x << " ratio_y : " << ratio_y << std::endl;
+        float ratio_x = std::max(1.0f, float(w)/float(minimum_w));
+        float ratio_y = std::max(1.0f, float(h)/float(minimum_h));
+        
+        //std::cout << "setRectangle ratio_x : " << ratio_x << " ratio_y : " << ratio_y << std::endl;
         
         for (size_t i = 0; i < fComponents.size(); ++i) {
+            
+            /*
             std::cout << "setRectangle Loop cur_x : " << cur_x << " cur_y : " << cur_y << std::endl;
             std::cout << "setRectangle Loop getPreferredWidth : " << fComponents[i]->getPreferredWidth()
                 << " getPreferredHeight : " << fComponents[i]->getPreferredHeight() << std::endl;
-            
-            /*
-            fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getMinimumWidth(), fComponents[i]->getMinimumHeight());
-            
-            if (fLayoutType == kHorizontalLayout) { cur_x += fComponents[i]->getMinimumWidth() + kHorizontalSpace; }
-            if (fLayoutType == kVerticalLayout) { cur_y += fComponents[i]->getMinimumHeight() + kVerticalSpace; }
-            */
-            /*
-             if (fLayoutType == kHorizontalLayout) { cur_x += fComponents[i]->getPreferredWidth() * ratio_x; }
-             if (fLayoutType == kVerticalLayout) { cur_y += fComponents[i]->getPreferredHeight() * ratio_y; }
             */
             
+             if (fLayoutType == kHorizontalLayout) {
+                 //cur_y = h/2 - (fComponents[i]->getPreferredHeight() * ratio_y)/2;
+                 //std::cout << "kHorizontalLayout cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
+                 fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
+                 cur_x += fComponents[i]->getPreferredWidth() * ratio_x;
+             }
+             
+             if (fLayoutType == kVerticalLayout) {
+                 //cur_x = w/2 - (fComponents[i]->getPreferredWidth() * ratio_x)/2;
+                 //std::cout << "kVerticalLayout cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
+                 fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
+                 cur_y += fComponents[i]->getPreferredHeight() * ratio_y;
+             }
             
+            /*
             if (fLayoutType == kHorizontalLayout) {
                 cur_y = h/2 - (fComponents[i]->getPreferredHeight() * ratio_y)/2;
-                std::cout << "kHorizontalLayout " << "cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
+                std::cout << "kHorizontalLayout cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
                 fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
                 cur_x += (fComponents[i]->getPreferredWidth() + kHorizontalSpace) * ratio_x;
             }
             
             if (fLayoutType == kVerticalLayout) {
                 cur_x = w/2 - (fComponents[i]->getPreferredWidth() * ratio_x)/2;
-                std::cout << "kVerticalLayout " << "cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
+                std::cout << "kVerticalLayout cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
                 fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
                 cur_y += (fComponents[i]->getPreferredHeight() + kVerticalSpace) * ratio_y;
             }
+            */
+            
+            /*
+             fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getMinimumWidth(), fComponents[i]->getMinimumHeight());
+             
+             if (fLayoutType == kHorizontalLayout) { cur_x += fComponents[i]->getMinimumWidth() + kHorizontalSpace; }
+             if (fLayoutType == kVerticalLayout) { cur_y += fComponents[i]->getMinimumHeight() + kVerticalSpace; }
+             */
+            /*
+             if (fLayoutType == kHorizontalLayout) { cur_x += fComponents[i]->getPreferredWidth() * ratio_x; }
+             if (fLayoutType == kVerticalLayout) { cur_y += fComponents[i]->getPreferredHeight() * ratio_y; }
+             */
             
             
             /*
@@ -252,11 +278,13 @@ struct LayoutComponentGroup : public LayoutComponent {
             for (size_t i = 0; i < fComponents.size(); ++i) {
                 size += fComponents[i]->getMinimumWidth();
             }
+            //std::cout << "getMinimumWidth LOOP "<< std::endl;
             return size + (fComponents.size() - 1) * kHorizontalSpace;
         } else {
             for (size_t i = 0; i < fComponents.size(); ++i) {
                 size = std::max(size, fComponents[i]->getMinimumWidth());
             }
+            //std::cout << "getMinimumWidth MAX "<< std::endl;
             return size;
         }
     }
@@ -269,11 +297,13 @@ struct LayoutComponentGroup : public LayoutComponent {
             for (size_t i = 0; i < fComponents.size(); ++i) {
                 size += fComponents[i]->getMinimumHeight();
             }
+            //std::cout << "getMinimumHeight LOOP "<< std::endl;
             return size + (fComponents.size() - 1) * kVerticalSpace;
         } else {
             for (size_t i = 0; i < fComponents.size(); ++i) {
                 size = std::max(size, fComponents[i]->getMinimumHeight());
             }
+            //std::cout << "getMinimumHeight MAX "<< std::endl;
             return size;
         }
     }
@@ -282,15 +312,24 @@ struct LayoutComponentGroup : public LayoutComponent {
     {
         int size = 0;
         
+        //std::cout << "getPreferredWidth fComponents.size() "<< fComponents.size() << std::endl;
+        
         if (fLayoutType == kHorizontalLayout) {
             for (size_t i = 0; i < fComponents.size(); ++i) {
                 size += fComponents[i]->getPreferredWidth();
+                //std::cout << "getPreferredWidth LOOP in "<< size << std::endl;
             }
-            return size + (fComponents.size() - 1) * kHorizontalSpace;
+            int res = size + (fComponents.size() - 1) * kHorizontalSpace;
+            return res;
+            
+            //std::cout << "getPreferredWidth LOOP "<< res << std::endl;
+            //return size + (fComponents.size() - 1) * kHorizontalSpace;
+           
         } else {
             for (size_t i = 0; i < fComponents.size(); ++i) {
                 size = std::max(size, fComponents[i]->getPreferredWidth());
             }
+            //std::cout << "getPreferredWidth MAX "<< size << std::endl;
             return size;
         }
     }
@@ -299,15 +338,23 @@ struct LayoutComponentGroup : public LayoutComponent {
     {
         int size = 0;
         
+        //std::cout << "getPreferredHeight fComponents.size() "<< fComponents.size() << std::endl;
+        
         if (fLayoutType == kVerticalLayout) {
             for (size_t i = 0; i < fComponents.size(); ++i) {
                 size += fComponents[i]->getPreferredHeight();
             }
-            return size + (fComponents.size() - 1) * kVerticalSpace;
+            int res = size + (fComponents.size() - 1) * kVerticalSpace;
+            return res;
+            
+            //std::cout << "getPreferredHeight LOOP "<< res << std::endl;
+            //return size + (fComponents.size() - 1) * kVerticalSpace;
+            
         } else {
             for (size_t i = 0; i < fComponents.size(); ++i) {
                 size = std::max(size, fComponents[i]->getPreferredHeight());
             }
+            //std::cout << "getPreferredHeight MAX "<< size << std::endl;
             return size;
         }
     }
@@ -332,6 +379,8 @@ class LayoutManagerUI : public UI
         LayoutComponentGroup* fCurLayoutGroup;
         std::stack<LayoutComponentGroup*> fLayoutGroupStack;
     
+        std::map<FAUSTFLOAT*, LayoutRect*> fZoneLayout;
+    
         void openBox(const char* label, Layout layout)
         {
             LayoutComponentGroup* component = new LayoutComponentGroup(layout);
@@ -349,7 +398,11 @@ class LayoutManagerUI : public UI
 
         virtual ~LayoutManagerUI() { delete fCurLayoutGroup; }
     
-        std::map<FAUSTFLOAT*, LayoutRect*> fZoneLayout;
+        LayoutRect* getLayoutRect(FAUSTFLOAT* zone)
+        {
+            assert(fZoneLayout.find(zone) != fZoneLayout.end());
+            return fZoneLayout[zone];
+        }
     
         void setSize(int width, int height)
         {
@@ -442,7 +495,7 @@ class LayoutManagerUI : public UI
             fZoneLayout[zone] = rect;
             
             std::cout << "addNumEntry label : " << label << " zone " << zone << " init : " << init
-                << " min : " << min << " max : " << max << " step : " << step << std::endl;
+                    << " min : " << min << " max : " << max << " step : " << step << std::endl;
             std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
         }
 
@@ -455,7 +508,7 @@ class LayoutManagerUI : public UI
             fZoneLayout[zone] = rect;
             
             std::cout << "addHorizontalBargraph label : " << label << " zone " << zone
-                << " min : " << min << " max : " << max << std::endl;
+                    << " min : " << min << " max : " << max << std::endl;
             std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
         }
     
@@ -466,7 +519,7 @@ class LayoutManagerUI : public UI
             fZoneLayout[zone] = rect;
             
             std::cout << "addVerticalBargraph label : " << label << " zone " << zone
-                << " min : " << min << " max : " << max << std::endl;
+                    << " min : " << min << " max : " << max << std::endl;
             std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
         }
 

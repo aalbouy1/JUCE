@@ -145,12 +145,12 @@ class MainContentComponent : public AudioAppComponent, private Timer
             // If you add any child components, this is where you should
             // update their positions.
             
+            std::cout << "resized " << getWidth() << " " << getHeight()  << std::endl;
+            
             if (fLayoutUI) {
                 fLayoutUI->setSize(getWidth(), getHeight());
                 fJUCEUI->resized();
             }
-            
-           std::cout << "resized " << getWidth() << " " << getHeight()  << std::endl;
         }
 
 

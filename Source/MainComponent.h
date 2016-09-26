@@ -5,10 +5,10 @@
 
 #include "juceFlexBox.h"
 
-//#include "noise.cpp"
-//#include "kisana.cpp"
-#include "faust_dsp.h"
-//#include "karplus.cpp"
+//#include "DSP files/noise.cpp"
+//#include "DSP files/kisana.cpp"
+//#include "DSP files/faust_dsp.h"
+#include "DSP files/karplus.cpp"
 
 std::list<GUI*> GUI::fGuiList;
 

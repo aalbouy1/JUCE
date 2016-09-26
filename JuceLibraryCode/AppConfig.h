@@ -11,8 +11,8 @@
 
 */
 
-#ifndef __JUCE_APPCONFIG_LGFCZN__
-#define __JUCE_APPCONFIG_LGFCZN__
+#ifndef __JUCE_APPCONFIG_RQYF80__
+#define __JUCE_APPCONFIG_RQYF80__
 
 //==============================================================================
 // [BEGIN_USER_CODE_SECTION]
@@ -35,7 +35,7 @@
 #define JUCE_MODULE_AVAILABLE_juce_gui_basics            1
 #define JUCE_MODULE_AVAILABLE_juce_gui_extra             1
 #define JUCE_MODULE_AVAILABLE_juce_opengl                1
-#define JUCE_MODULE_AVAILABLE_juce_osc                   1
+#define JUCE_MODULE_AVAILABLE_juce_video                 1
 
 //==============================================================================
 #ifndef    JUCE_STANDALONE_APPLICATION
@@ -152,6 +152,14 @@
  //#define JUCE_USE_CURL
 #endif
 
+#ifndef    JUCE_CATCH_UNHANDLED_EXCEPTIONS
+ //#define JUCE_CATCH_UNHANDLED_EXCEPTIONS
+#endif
+
+#ifndef    JUCE_ALLOW_STATIC_NULL_VARIABLES
+ //#define JUCE_ALLOW_STATIC_NULL_VARIABLES
+#endif
+
 //==============================================================================
 // juce_graphics flags:
 
@@ -193,5 +201,24 @@
  //#define JUCE_ENABLE_LIVE_CONSTANT_EDITOR
 #endif
 
+//==============================================================================
+// juce_video flags:
 
-#endif  // __JUCE_APPCONFIG_LGFCZN__
+#ifndef    JUCE_DIRECTSHOW
+ //#define JUCE_DIRECTSHOW
+#endif
+
+#ifndef    JUCE_MEDIAFOUNDATION
+ //#define JUCE_MEDIAFOUNDATION
+#endif
+
+#ifndef    JUCE_QUICKTIME
+ //#define JUCE_QUICKTIME
+#endif
+
+#ifndef    JUCE_USE_CAMERA
+ //#define JUCE_USE_CAMERA
+#endif
+
+
+#endif  // __JUCE_APPCONFIG_RQYF80__

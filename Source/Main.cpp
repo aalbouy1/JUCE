@@ -9,6 +9,7 @@
 */
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "MainComponent.h"
 
 Component* createMainContentComponent();
 
@@ -66,15 +67,14 @@ public:
                                                     DocumentWindow::allButtons)
         {
             setUsingNativeTitleBar (true);
-            setContentOwned (createMainContentComponent(), true);
-            setResizable (true, true);
-
-            centreWithSize (getWidth(), getHeight());
-            setVisible (true);
             
-        #if JUCE_IOS || JUCE_ANDROID
-            setFullScreen (true);
-        #endif
+            Component* window = createMainContentComponent();
+            setContentOwned (window, true);
+            
+            centreWithSize (getWidth(), getHeight());
+            setResizable(true, false);
+            //setResizeLimits(500, 500, 10000, 10000);
+            setVisible (true);
         }
 
         void closeButtonPressed() override

@@ -6,10 +6,11 @@
 #include "juceFlexBox.h"
 
 // Select here the compiled DSP that you want to executev  
-#include "DSP files/noise.cpp"
+//#include "DSP files/noise.cpp"
 //#include "DSP files/kisana.cpp"
-//#include "DSP files/faust_dsp.h"
+#include "DSP files/faust_dsp.h"
 //#include "DSP files/karplus.cpp"
+//#include "DSP Files/karplus2.cpp"
 
 std::list<GUI*> GUI::fGuiList;
 
@@ -22,7 +23,7 @@ public:
         
         fDSP->buildUserInterface(&flexBox);
         
-        setSize (400, 800);
+        setSize (440, 800);
         addAndMakeVisible(flexBox);
         
         setAudioChannels (fDSP->getNumInputs(), fDSP->getNumOutputs());

@@ -16,17 +16,21 @@ struct FlexSlider   : public juce::Component, uiItem,
 private juce::Slider::Listener
 {
     
-    FlexSlider(GUI* box, juce::Colour col, FlexItem& item, FAUSTFLOAT* zone, FAUSTFLOAT w, FAUSTFLOAT h, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT cur, FAUSTFLOAT step, const char* label, int order, int choice) : flexItem(item), name(label), colour(col), uiItem(box, zone), width(w), height(h)
+    FlexSlider(GUI* box, juce::Colour col, FlexItem& item, FAUSTFLOAT* zone, FAUSTFLOAT w, FAUSTFLOAT h, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT cur, FAUSTFLOAT step, const char* label, const char* blocName, /*LookAndFeel* laf,*/ int order, int choice) : flexItem(item), sliderName(label), colour(col), uiItem(box, zone), width(w), height(h)
     {
         x = 10;
         y = 10;
+        boxName = strdup(blocName);
+        //setLookAndFeel(laf);
+        
         switch(choice){
             case 1:
-                x += 60;
+                x += 80;
                 style = Slider::SliderStyle::LinearHorizontal;
                 horizontal = true;
                 break;
             case 2:
+                y += 20;
                 style = Slider::SliderStyle::LinearVertical;
                 horizontal = false;
                 break;
@@ -47,8 +51,11 @@ private juce::Slider::Listener
                 break;
         }
         
+        //Slider::LookAndFeelMethods::getSliderLayout(slider);
+        
         setupSlider(slider, {x, y, width, height}, min, max, cur, step, style);
-        addLabelToSlider(label, slider, horizontal);
+        if(horizontal)
+            addLabelToSlider(label, slider, horizontal);
         
         flexItem.order     = order;
         flexItem.alignSelf = FlexItem::AlignSelf::stretch;
@@ -80,7 +87,7 @@ private juce::Slider::Listener
     {
         float value = slider->getValue();
         
-        std::cout<<name<<" : "<<value<<std::endl;
+        std::cout<<sliderName<<" : "<<value<<std::endl;
         
         modifyZone(slider->getValue());
         
@@ -93,6 +100,12 @@ private juce::Slider::Listener
         
         g.setColour (colour);
         g.fillRect (r);
+        
+        g.setColour (Colours::black);
+        if(!horizontal)
+            g.drawText(sliderName, x, r.getHeight()/2 - 30, slider.getTextBoxWidth(), 20, Justification::centred);
+        
+        g.drawSingleLineText(String(boxName), r.getWidth()/2, 15);
         
         g.setColour (Colours::white);
         g.drawFittedText ("w: " + String (r.getWidth()) + newLine + "h: " + String (r.getHeight()), r.reduced (4), Justification::bottomRight, 2);
@@ -116,7 +129,8 @@ private juce::Slider::Listener
     Slider::SliderStyle style;
     Slider slider;
     Label label;
-    const char* name;
+    const char* sliderName;
+    ScopedPointer<char> boxName;
     ScopedPointer<ValueConverter> fConverter;
     int x, y, width, height;
     bool horizontal;

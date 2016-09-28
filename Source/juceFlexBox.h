@@ -13,6 +13,7 @@
 #include "FlexSlider.h"
 
 #include "MainComponent.h"
+#include "CustomLookAndFeel.h"
 
 #include "faust/gui/GUI.h"
 
@@ -23,7 +24,7 @@
 #define kKnobWidth 70
 #define kKnobHeight 70
 
-#define kVSliderWidth 100
+#define kVSliderWidth 110
 #define kVSliderHeight 250
 
 #define kHSliderWidth 350
@@ -41,7 +42,7 @@
 #define kVBargraphWidth 30
 #define kVBargraphHeight 100
 
-#define kHBargraphWidth 100
+#define kHBargraphWidth 110
 #define kHBargraphHeight 30
 
 /*
@@ -65,6 +66,8 @@ struct JuceUI: public Component, GUI
         flexBox.justifyContent  = FlexBox::JustifyContent::flexStart;
         flexBox.alignItems      = FlexBox::AlignItems::stretch;
         flexBox.alignContent    = FlexBox::AlignContent::stretch;
+        
+        //setLookAndFeel(myLookAndFeel);
         
         i = 0;
         j = 0;
@@ -121,30 +124,43 @@ struct JuceUI: public Component, GUI
             addAndMakeVisible(panel);
         }
         else{
-            FlexSlider* panel = new FlexSlider(this, colour, flexItem, zone, width, height, min, max, init, step, label, order, choice);
+            FlexSlider* panel = new FlexSlider(this, colour, flexItem, zone, width, height, min, max, init, step, label, blocName,/* myLookAndFeel,*/ order, choice);
             flexItem.associatedComponent = panel;
             addAndMakeVisible(panel);
         }
     }
     
     //UI Virtual Functions
-    
+
+
+
     virtual void openTabBox(const char* label){
+        
         //direction = FlexBox::Direction::row;
+        tabName = strdup(label);
     }
     virtual void openHorizontalBox(const char* label){
-        if(j==0) { direction = FlexBox::Direction::column; }
+        if(j==0) {
+            direction = FlexBox::Direction::column;
+            verticalLayout = false;
+        }
         std::cout<<"openHorizontal, j = "<<j<<std::endl;
+        blocName = strdup(label);
         j++;
     }
     virtual void openVerticalBox(const char* label){
-        if(j==0) { direction = FlexBox::Direction::row; }
+        if(j==0) {
+            direction = FlexBox::Direction::row;
+            verticalLayout = false;
+        }
         std::cout<<"openVertical, j = "<<j<<std::endl;
+        blocName = strdup(label);
         j++;
     }
     virtual void closeBox(){
         //direction = FlexBox::Direction::row;
         std::cout<<"closeBox, j = "<<j<<std::endl;
+        blocName = strdup("");
         j--;
     }
     
@@ -155,8 +171,10 @@ struct JuceUI: public Component, GUI
         itemWidth = kButtonWidth;
         itemHeight = kButtonHeight;
         itemBasis = screenWidth;
+        nbButton++;
+        boolButton = true;
         
-        addItem(Colours::lightblue, zone, itemWidth, itemHeight, 0, 0, 0, 0, label, itemBasis, i, 6);
+        addItem(Colours::grey, zone, itemWidth, itemHeight, 0, 0, 0, 0, label, itemBasis, i, 6);
         
         i++;
     }
@@ -165,8 +183,10 @@ struct JuceUI: public Component, GUI
         itemWidth = kCheckButtonWidth;
         itemHeight = kCheckButtonHeight;
         itemBasis = screenWidth;
+        nbCheckButton++;
+        boolCheckButton = true;
         
-        addItem(Colours::lightblue, zone, itemWidth, itemHeight, 0, 0, 0, 0, label, itemBasis, i, 7);
+        addItem(Colours::grey, zone, itemWidth, itemHeight, 0, 0, 0, 0, label, itemBasis, i, 7);
         
         i++;
     }
@@ -175,8 +195,10 @@ struct JuceUI: public Component, GUI
         itemWidth = kVSliderWidth;
         itemHeight = kVSliderHeight;
         itemBasis = 0;
+        nbVSlider++;
+        boolVSlider = true;
         
-        addItem(Colours::lightblue, zone, itemWidth, itemHeight, init, min, max, step, label, itemBasis, i, 2);
+        addItem(Colours::grey, zone, itemWidth, itemHeight, init, min, max, step, label, itemBasis, i, 2);
         
         i++;
     }
@@ -186,8 +208,10 @@ struct JuceUI: public Component, GUI
         itemWidth = kHSliderWidth;
         itemHeight = kHSliderHeight;
         itemBasis = screenWidth;
+        nbHSlider++;
+        boolHSlider = true;
         
-        addItem(Colours::lightblue, zone, itemWidth, itemHeight, init, min, max, step, label, itemBasis, i, 1);
+        addItem(Colours::grey, zone, itemWidth, itemHeight, init, min, max, step, label, itemBasis, i, 1);
         
         i++;
     }
@@ -197,8 +221,10 @@ struct JuceUI: public Component, GUI
         itemWidth = kNumEntryWidth;
         itemHeight = kNumEntryHeight;
         itemBasis = screenWidth;
+        nbNumEntry++;
+        boolNumEntry = true;
         
-        addItem(Colours::lightblue, zone, itemWidth, itemHeight, init, min, max, step, label, itemBasis, i, 3);
+        addItem(Colours::grey, zone, itemWidth, itemHeight, init, min, max, step, label, itemBasis, i, 3);
         
         i++;
     }
@@ -210,16 +236,20 @@ struct JuceUI: public Component, GUI
         itemWidth = kHBargraphWidth;
         itemHeight = kHBargraphHeight;
         itemBasis = screenWidth;
+        nbHBargraph++;
+        boolHBargraph = true;
         
-        addItem(Colours::lightblue, zone, itemWidth, itemHeight, 0.0, min, max, 0.0, label, itemBasis, i, 4);
+        addItem(Colours::grey, zone, itemWidth, itemHeight, 0.0, min, max, 0.0, label, itemBasis, i, 4);
     }
     virtual void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
     {
         itemWidth = kVBargraphWidth;
         itemHeight = kVBargraphHeight;
         itemBasis = 0;
+        nbVBargraph++;
+        boolVBargraph = true;
         
-        addItem(Colours::lightblue, zone, itemWidth, itemHeight, 0.0, min, max, 0.0, label, itemBasis, i, 5);
+        addItem(Colours::grey, zone, itemWidth, itemHeight, 0.0, min, max, 0.0, label, itemBasis, i, 5);
     }
     
     // -- metadata declrations
@@ -229,15 +259,27 @@ struct JuceUI: public Component, GUI
         //MetaDataUI::declare(zone, key, value);
     }
 
+/*float getMinimumWidth(){
+    if(verticalLayout){
+        return std::max();
+    }
+}*/
+
     // VARIABLES
     
     Rectangle<int> screen = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
     int screenWidth = screen.getWidth();
     int screenHeight = screen.getHeight();
+    bool verticalLayout;
+    int nbHSlider, nbVSlider, nbButton, nbCheckButton, nbNumEntry, nbHBargraph, nbVBargraph;
+    bool boolHSlider, boolVSlider, boolButton, boolCheckButton, boolNumEntry, boolHBargraph, boolVBargraph;
     
+    //ScopedPointer<CustomLookAndFeel> myLookAndFeel;
+
     FAUSTFLOAT itemWidth, itemHeight;
     int itemBasis;
-    
+    ScopedPointer<char> blocName, tabName;
+
     FlexBox::Direction direction = FlexBox::Direction::row;
     int i, j;
 

@@ -22,7 +22,7 @@ private juce::Slider::Listener
         y = 10;
         switch(choice){
             case 1:
-                x += 40;
+                x += 60;
                 style = Slider::SliderStyle::LinearHorizontal;
                 horizontal = true;
                 break;
@@ -54,9 +54,13 @@ private juce::Slider::Listener
         flexItem.alignSelf = FlexItem::AlignSelf::stretch;
     }
     
+    ~FlexSlider(){
+        delete fConverter;
+    }
+    
     void addLabelToSlider (const String& name, Slider& target, bool horizontal)
     {
-        auto label = new Label (name, name);
+        Label* label = new Label (name, name);
         label->attachToComponent(&target, horizontal);
         sliderLabel.add (label);
         addAndMakeVisible (label);
@@ -74,7 +78,7 @@ private juce::Slider::Listener
     
     void sliderValueChanged (Slider* slider) override
     {
-        auto value = slider->getValue();
+        float value = slider->getValue();
         
         std::cout<<name<<" : "<<value<<std::endl;
         
@@ -85,7 +89,7 @@ private juce::Slider::Listener
     
     void paint (Graphics& g) override
     {
-        auto r = getLocalBounds();
+        Rectangle<int> r = getLocalBounds();
         
         g.setColour (colour);
         g.fillRect (r);

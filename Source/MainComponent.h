@@ -5,10 +5,11 @@
 
 #include "juceFlexBox.h"
 
-//#include "DSP files/noise.cpp"
+// Select here the compiled DSP that you want to executev  
+#include "DSP files/noise.cpp"
 //#include "DSP files/kisana.cpp"
 //#include "DSP files/faust_dsp.h"
-#include "DSP files/karplus.cpp"
+//#include "DSP files/karplus.cpp"
 
 std::list<GUI*> GUI::fGuiList;
 

@@ -70,6 +70,11 @@ struct JuceUI: public Component, GUI
         j = 0;
     }
     
+    ~JuceUI() override
+    {
+    
+    }
+    
     void setFlexBoxSize(float width, float height){
         setSize(width, height);
     }
@@ -104,30 +109,23 @@ struct JuceUI: public Component, GUI
         // 1 is HorizontalSlider, 2 is VerticalSlider, 3 is NumEntry, 4 is HorizontalBargraph,
         // 5 is VerticalBargraph, 6 is Button, 7 is CheckButton
         
+        
         if(choice == 6){
-            auto panel = new FlexButton(this, colour, flexItem, zone, width, height, label, order);
-            panelButton.add(panel);
+            FlexButton* panel = new FlexButton(this, colour, flexItem, zone, width, height, label, order);
             flexItem.associatedComponent = panel;
             addAndMakeVisible(panel);
         }
         else if(choice == 7){
-            auto panel = new FlexCheckButton(this, colour, flexItem, zone, width, height, label, order);
-            panelCheckButton.add(panel);
+            FlexCheckButton* panel = new FlexCheckButton(this, colour, flexItem, zone, width, height, label, order);
             flexItem.associatedComponent = panel;
             addAndMakeVisible(panel);
         }
         else{
-            auto panel = new FlexSlider(this, colour, flexItem, zone, width, height, min, max, init, step, label, order, choice);
-            panelSlider.add(panel);
+            FlexSlider* panel = new FlexSlider(this, colour, flexItem, zone, width, height, min, max, init, step, label, order, choice);
             flexItem.associatedComponent = panel;
             addAndMakeVisible(panel);
         }
     }
-    
-    /*float getMinimumWidth(){
-        OwnedArray<FlexSlider>::operator op;
-        
-    }*/
     
     //UI Virtual Functions
     
@@ -230,14 +228,8 @@ struct JuceUI: public Component, GUI
     {
         //MetaDataUI::declare(zone, key, value);
     }
-    
-    
-    
+
     // VARIABLES
-    
-    OwnedArray<FlexSlider> panelSlider;
-    OwnedArray<FlexButton> panelButton;
-    OwnedArray<FlexCheckButton> panelCheckButton;
     
     Rectangle<int> screen = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
     int screenWidth = screen.getWidth();
@@ -248,7 +240,7 @@ struct JuceUI: public Component, GUI
     
     FlexBox::Direction direction = FlexBox::Direction::row;
     int i, j;
-    
+
     FlexBox flexBox;
 };
     

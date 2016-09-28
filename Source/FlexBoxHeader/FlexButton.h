@@ -71,12 +71,10 @@ private juce::Button::Listener
     }
 
     TextButton button;
-    Label label;
     const char* name;
 
 
     int x, y, width, height;
-    OwnedArray<Label> buttonLabel;
 
     FlexItem& flexItem;
     juce::Colour colour;

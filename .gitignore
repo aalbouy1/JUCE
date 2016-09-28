@@ -1230,3 +1230,9 @@ Builds/iOS/Faust/Images.xcassets/LaunchImage.launchimage/LaunchImage-iphone-reti
 Builds/iOS/Info-App.plist
 JuceLibraryCode/juce_video.cpp
 JuceLibraryCode/juce_video.mm
+Builds/AndroidStudio/app/src/main/jni/Source/DSP files/karplus.cpp
+Builds/AndroidStudio/app/src/main/jni/Source/DSP files/noise.cpp
+Builds/MacOSX/Faust.xcodeproj/project.xcworkspace/xcuserdata/albouy.xcuserdatad/xcdebugger/Expressions.xcexplist
+Builds/MacOSX/Faust.xcodeproj/xcuserdata/albouy.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+Builds/MacOSX/advanced_leak_detector.h
+Builds/MacOSX/advanced_leak_detector.h

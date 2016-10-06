@@ -57,15 +57,14 @@
 #define kVerticalBorder 50
 
 
-struct JuceUI: public Component, GUI
+struct JuceUI: public Component, public FlexBox, GUI
 {
     JuceUI()
     {
-        flexBox.flexDirection   = direction;
-        flexBox.flexWrap        = FlexBox::Wrap::wrap;
-        flexBox.justifyContent  = FlexBox::JustifyContent::flexStart;
-        flexBox.alignItems      = FlexBox::AlignItems::stretch;
-        flexBox.alignContent    = FlexBox::AlignContent::stretch;
+        this->flexWrap        = FlexBox::Wrap::wrap;
+        this->justifyContent  = FlexBox::JustifyContent::flexStart;
+        this->alignItems      = FlexBox::AlignItems::stretch;
+        this->alignContent    = FlexBox::AlignContent::stretch;
         
         //setLookAndFeel(myLookAndFeel);
         
@@ -86,7 +85,7 @@ struct JuceUI: public Component, GUI
     {
         std::cout<<getLocalBounds().getX()<<"X - Y"<<getLocalBounds().getY()<<std::endl;
         std::cout<<getLocalBounds().getWidth()<<"x"<<getLocalBounds().getHeight()<<std::endl;
-        flexBox.performLayout (getFlexBoxBounds());
+        this->performLayout (getFlexBoxBounds());
     }
     
     Rectangle<float> getFlexBoxBounds() const
@@ -103,10 +102,10 @@ struct JuceUI: public Component, GUI
     }
     
     
-    void addItem(Colour colour, FAUSTFLOAT* zone, FAUSTFLOAT width, FAUSTFLOAT height, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step, const char* label, int basis, int order, int choice)
+    void addItem(Colour colour, FAUSTFLOAT* zone, FAUSTFLOAT width, FAUSTFLOAT height, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step, String label, int basis, int order, int choice)
     {
-        flexBox.items.add(FlexItem(width, height).withFlex(1, 1, basis));
-        auto& flexItem = flexBox.items.getReference(flexBox.items.size() - 1);
+        this->items.add(FlexItem(width, height).withFlex(1, 1, basis));
+        auto& flexItem = this->items.getReference(this->items.size() - 1);
         
         // ====================================================================================
         // 1 is HorizontalSlider, 2 is VerticalSlider, 3 is NumEntry, 4 is HorizontalBargraph,
@@ -137,30 +136,30 @@ struct JuceUI: public Component, GUI
     virtual void openTabBox(const char* label){
         
         //direction = FlexBox::Direction::row;
-        tabName = strdup(label);
+        tabName = String(label);
     }
     virtual void openHorizontalBox(const char* label){
         if(j==0) {
-            direction = FlexBox::Direction::column;
+            this->flexDirection = FlexBox::Direction::column;
             verticalLayout = false;
         }
         std::cout<<"openHorizontal, j = "<<j<<std::endl;
-        blocName = strdup(label);
+        blocName = String(label);
         j++;
     }
     virtual void openVerticalBox(const char* label){
         if(j==0) {
-            direction = FlexBox::Direction::row;
-            verticalLayout = false;
+            this->flexDirection = FlexBox::Direction::row;
+            verticalLayout = true;
         }
         std::cout<<"openVertical, j = "<<j<<std::endl;
-        blocName = strdup(label);
+        blocName = String(label);
         j++;
     }
     virtual void closeBox(){
         //direction = FlexBox::Direction::row;
         std::cout<<"closeBox, j = "<<j<<std::endl;
-        blocName = strdup("");
+        blocName.clear();
         j--;
     }
     
@@ -194,7 +193,7 @@ struct JuceUI: public Component, GUI
     {
         itemWidth = kVSliderWidth;
         itemHeight = kVSliderHeight;
-        itemBasis = 0;
+        verticalLayout ? itemBasis = 0 : itemBasis = screenWidth;
         nbVSlider++;
         boolVSlider = true;
         
@@ -207,7 +206,7 @@ struct JuceUI: public Component, GUI
     {
         itemWidth = kHSliderWidth;
         itemHeight = kHSliderHeight;
-        itemBasis = screenWidth;
+        verticalLayout ? itemBasis = screenWidth : itemBasis = 0;
         nbHSlider++;
         boolHSlider = true;
         
@@ -259,31 +258,129 @@ struct JuceUI: public Component, GUI
         //MetaDataUI::declare(zone, key, value);
     }
 
-/*float getMinimumWidth(){
+int getMinimumWidth(){
+    int nbElem = boolHSlider + boolVSlider + boolButton + boolCheckButton + boolNumEntry + boolHBargraph + boolVBargraph;
+    int elemMinSize[nbElem];
+    int k = 0;
     if(verticalLayout){
-        return std::max();
+        if(boolHSlider){
+            elemMinSize[k] = kHSliderWidth;
+            k++;
+        }
+        if(boolVSlider){
+            elemMinSize[k] = nbVSlider * kVSliderWidth;
+            k++;
+        }
+        if(boolButton){
+            elemMinSize[k] = kButtonWidth;
+            k++;
+        }
+        if(boolCheckButton){
+            elemMinSize[k] = kCheckButtonWidth;
+            k++;
+        }
+        if(boolNumEntry){
+            elemMinSize[k] = kNumEntryWidth;
+            k++;
+        }
+        if(boolHBargraph){
+            elemMinSize[k] = kHBargraphWidth;
+            k++;
+        }
+        if(boolVBargraph){
+            elemMinSize[k] = nbVBargraph * kVBargraphWidth;
+            k++;
+        }
+        std::cout<<"MinWidth : "<<*std::max_element(elemMinSize,elemMinSize+nbElem)<<std::endl;
+        return *std::max_element(elemMinSize,elemMinSize+nbElem);
     }
-}*/
+    else{
+        int sum = 0;
+        sum += boolHSlider * kHSliderWidth;
+        sum += boolVSlider * nbVSlider * kVSliderWidth;
+        sum += boolButton * kButtonWidth;
+        sum += boolCheckButton *  kCheckButtonWidth;
+        sum += boolNumEntry *  kNumEntryWidth;
+        sum += boolHBargraph * kHBargraphWidth;
+        sum += boolVBargraph * nbVBargraph * kVBargraphWidth;
+        std::cout<<"MinWidth : "<<sum<<std::endl;
+        return sum;
+    }
+}
 
+int getMinimumHeight(){
+    int nbElem = boolHSlider + boolVSlider + boolButton + boolCheckButton + boolNumEntry + boolHBargraph + boolVBargraph;
+    int elemMinSize[nbElem];
+    int k = 0;
+    std::cout<<"HSlider : "<<nbHSlider<<", VSlider : "<<nbVSlider<<", Button  :"<<nbButton<<", CheckButton : "<<nbCheckButton<<", NumEntry : "<<nbNumEntry<<", HBargraph : "<<nbHBargraph<<", VBargraph : "<<nbVBargraph<<std::endl;
+    if(verticalLayout){
+        int sum = 0;
+        sum += boolHSlider * nbHSlider * kHSliderHeight;
+        sum += boolVSlider * kVSliderHeight;
+        sum += boolButton * nbButton * kButtonHeight;
+        sum += boolCheckButton * nbCheckButton * kCheckButtonHeight;
+        sum += boolNumEntry * nbNumEntry * kNumEntryHeight;
+        sum += boolHBargraph * nbHBargraph * kHBargraphHeight;
+        sum += boolVBargraph * kVBargraphHeight;
+        std::cout<<"MinHeight : "<<sum<<std::endl;
+        return sum;
+    }
+    else{
+        if(boolHSlider){
+            elemMinSize[k] = kHSliderHeight;
+            k++;
+        }
+        if(boolVSlider){
+            elemMinSize[k] = nbVSlider * kVSliderHeight;
+            std::cout<<"VSlider "<<nbVSlider<<std::endl;
+            k++;
+        }
+        if(boolButton){
+            elemMinSize[k] = kButtonHeight;
+            k++;
+        }
+        if(boolCheckButton){
+            elemMinSize[k] = kCheckButtonHeight;
+            k++;
+        }
+        if(boolNumEntry){
+            elemMinSize[k] = kNumEntryHeight;
+            k++;
+        }
+        if(boolHBargraph){
+            elemMinSize[k] = kHBargraphHeight;
+            k++;
+        }
+        if(boolVBargraph){
+            elemMinSize[k] = nbVBargraph * kVBargraphHeight;
+            std::cout<<"HBargraph "<<nbVBargraph<<std::endl;
+            k++;
+        }
+        std::cout<<"MinHeight : "<<*std::max_element(elemMinSize,elemMinSize+nbElem)<<std::endl;
+        return *std::max_element(elemMinSize,elemMinSize+nbElem);
+    }
+}
     // VARIABLES
     
     Rectangle<int> screen = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
     int screenWidth = screen.getWidth();
     int screenHeight = screen.getHeight();
     bool verticalLayout;
-    int nbHSlider, nbVSlider, nbButton, nbCheckButton, nbNumEntry, nbHBargraph, nbVBargraph;
-    bool boolHSlider, boolVSlider, boolButton, boolCheckButton, boolNumEntry, boolHBargraph, boolVBargraph;
+    int nbHSlider = 0, nbVSlider = 0, nbButton = 0, nbCheckButton = 0, nbNumEntry = 0, nbHBargraph = 0, nbVBargraph = 0;
+    bool boolHSlider = false, boolVSlider = false, boolButton = false, boolCheckButton = false, boolNumEntry = false, boolHBargraph = false, boolVBargraph = false;
     
     //ScopedPointer<CustomLookAndFeel> myLookAndFeel;
 
+    int minWidth, minHeight;
+    
     FAUSTFLOAT itemWidth, itemHeight;
     int itemBasis;
-    ScopedPointer<char> blocName, tabName;
+    String blocName, tabName;
 
-    FlexBox::Direction direction = FlexBox::Direction::row;
+    //FlexBox::Direction direction = FlexBox::Direction::row;
     int i, j;
 
-    FlexBox flexBox;
+    //FlexBox flexBox;
 };
     
     

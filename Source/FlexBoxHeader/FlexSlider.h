@@ -16,11 +16,10 @@ struct FlexSlider   : public juce::Component, uiItem,
 private juce::Slider::Listener
 {
     
-    FlexSlider(GUI* box, juce::Colour col, FlexItem& item, FAUSTFLOAT* zone, FAUSTFLOAT w, FAUSTFLOAT h, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT cur, FAUSTFLOAT step, const char* label, const char* blocName, /*LookAndFeel* laf,*/ int order, int choice) : flexItem(item), sliderName(label), colour(col), uiItem(box, zone), width(w), height(h)
+    FlexSlider(GUI* box, juce::Colour col, FlexItem& item, FAUSTFLOAT* zone, FAUSTFLOAT w, FAUSTFLOAT h, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT cur, FAUSTFLOAT step, String label, String blocName, /*LookAndFeel* laf,*/ int order, int choice) : uiItem(box, zone), sliderName(label), boxName(blocName), width(w), height(h), flexItem(item), colour(col)
     {
         x = 10;
         y = 10;
-        boxName = strdup(blocName);
         //setLookAndFeel(laf);
         
         switch(choice){
@@ -129,8 +128,8 @@ private juce::Slider::Listener
     Slider::SliderStyle style;
     Slider slider;
     Label label;
-    const char* sliderName;
-    ScopedPointer<char> boxName;
+    String sliderName;
+    String boxName;
     ScopedPointer<ValueConverter> fConverter;
     int x, y, width, height;
     bool horizontal;

@@ -11,7 +11,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
 
-Component* createMainContentComponent();
+MainContentComponent* createMainContentComponent();
 
 //==============================================================================
 class FaustApplication  : public JUCEApplication
@@ -68,12 +68,12 @@ public:
         {
             setUsingNativeTitleBar (true);
             
-            Component* window = createMainContentComponent();
+            MainContentComponent* window = createMainContentComponent();
             setContentOwned (window, true);
             
             centreWithSize (getWidth(), getHeight());
             setResizable(true, false);
-            //setResizeLimits(500, 500, 10000, 10000);
+            setResizeLimits(window->getMinWidth(), window->getMinHeight()+22, 10000, 10000);
             setVisible (true);
         }
 

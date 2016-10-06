@@ -9,8 +9,9 @@
 //#include "DSP files/noise.cpp"
 //#include "DSP files/kisana.cpp"
 #include "DSP files/faust_dsp.h"
+//#include "DSP files/faust_dsp - tab.h"
 //#include "DSP files/karplus.cpp"
-//#include "DSP Files/karplus2.cpp"
+//#include "DSP Files/karplus32.cpp"
 
 std::list<GUI*> GUI::fGuiList;
 
@@ -22,8 +23,9 @@ public:
         fDSP = new mydsp();
         
         fDSP->buildUserInterface(&flexBox);
+        getMinSize();
         
-        setSize (440, 800);
+        setSize (minWidth, minHeight);
         addAndMakeVisible(flexBox);
         
         setAudioChannels (fDSP->getNumInputs(), fDSP->getNumOutputs());
@@ -86,14 +88,28 @@ public:
     float getWindowWidth(){
         return this->getWidth();
     }
-    
+
+    int getMinWidth(){
+        return minWidth;
+    }
+
+    int getMinHeight(){
+        return minHeight;
+    }
+
+    void getMinSize(){
+        minHeight = flexBox.getMinimumHeight();
+        minWidth = flexBox.getMinimumWidth();
+    }
+
+
 private:
 
     JuceUI flexBox;
     
     ScopedPointer<mydsp> fDSP;
     
-    int minHeight = 800;
+    int minHeight = 400;
     int minWidth = 400;
     
     Rectangle<int> screen = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
@@ -107,7 +123,7 @@ private:
 
 
 // (This function is called by the app startup code to create our main component)
-Component* createMainContentComponent()     { return new MainContentComponent(); }
+MainContentComponent* createMainContentComponent()     { return new MainContentComponent(); }
 
 
 #endif

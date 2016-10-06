@@ -1380,8 +1380,9 @@ public:
         return fSamplingFreq;
     }
     
+    
     virtual void buildUserInterface(UI* ui_interface) {
-        ui_interface->openVerticalBox("0x00");
+        ui_interface->openTabBox("1");
         
         
         ui_interface->openHorizontalBox("Loops");
@@ -1401,8 +1402,9 @@ public:
         ui_interface->addVerticalSlider("note", &fVslider1, 0.0f, 0.0f, 11.0f, 1.0f);
         ui_interface->closeBox();
         ui_interface->closeBox();
+        ui_interface->closeBox();
      
-        
+        ui_interface->openTabBox("2eme tab");
         ui_interface->addHorizontalSlider("Reverb", &fHslider2, 0.333299994f, 0.0f, 1.0f, 0.0250000004f);
         ui_interface->declare(&fHslider1, "1", "");
         ui_interface->addHorizontalSlider("WahWah", &fHslider1, 0.800000012f, 0.0f, 1.0f, 0.00999999978f);

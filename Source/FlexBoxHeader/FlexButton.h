@@ -1,11 +1,3 @@
-//
-//  FlexButton.h
-//  Faust
-//
-//  Created by Adrien Albouy on 22/09/2016.
-//
-//
-
 #ifndef Faust_FlexButton_h
 #define Faust_FlexButton_h
 
@@ -16,7 +8,7 @@ struct FlexButton   : public juce::Component, uiItem,
 private juce::Button::Listener
 {
     
-    FlexButton(GUI* box, juce::Colour col, FlexItem& item, FAUSTFLOAT* zone, FAUSTFLOAT w, FAUSTFLOAT h, const char* label, int order) : flexItem(item), colour(col), name(label), height(h), width(w), uiItem(box, zone)
+    FlexButton(GUI* box, juce::Colour col, FlexItem& item, FAUSTFLOAT* zone, FAUSTFLOAT w, FAUSTFLOAT h, String label, int order) :  uiItem(box, zone), name(label), width(w), height(h), flexItem(item), colour(col)
     {
         x = 10;
         y = roundToInt((getFlexItemBounds().getHeight()-height)/2);
@@ -71,7 +63,7 @@ private juce::Button::Listener
     }
 
     TextButton button;
-    const char* name;
+    String name;
 
 
     int x, y, width, height;

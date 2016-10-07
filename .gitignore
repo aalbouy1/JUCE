@@ -1236,3 +1236,9 @@ Builds/MacOSX/Faust.xcodeproj/project.xcworkspace/xcuserdata/albouy.xcuserdatad/
 Builds/MacOSX/Faust.xcodeproj/xcuserdata/albouy.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 Builds/MacOSX/advanced_leak_detector.h
 Builds/MacOSX/advanced_leak_detector.h
+Builds/AndroidStudio/app/src/main/jni/Source/DSP Files/UITester.cpp
+Builds/AndroidStudio/app/src/main/jni/Source/DSP Files/faust_dsp - tab.h
+Builds/AndroidStudio/app/src/main/jni/Source/DSP Files/karplus32.cpp
+Builds/AndroidStudio/app/src/main/jni/Source/DSP Files/matrix.cpp
+Builds/AndroidStudio/app/src/main/jni/Source/Faust_layout.h
+Builds/AndroidStudio/app/src/main/jni/Source/Faust_tabs.h

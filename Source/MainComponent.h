@@ -3,14 +3,17 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-#include "juceFlexBox.h"
+#include "Faust_layout.h"
 
 // Select here the compiled DSP that you want to executev  
 //#include "DSP files/noise.cpp"
 //#include "DSP files/kisana.cpp"
-#include "DSP files/faust_dsp.h"
-//#include "DSP files/karplus.cpp"
-//#include "DSP Files/karplus2.cpp"
+//#include "DSP files/faust_dsp.h"
+//#include "DSP Files/faust_dsp - tab.h"
+//#include "DSP Files/matrix.cpp"
+#include "DSP files/karplus.cpp"
+//#include "DSP Files/karplus32.cpp"
+//#include "DSP Files/UITester.cpp"
 
 std::list<GUI*> GUI::fGuiList;
 
@@ -21,10 +24,13 @@ public:
     {
         fDSP = new mydsp();
         
-        fDSP->buildUserInterface(&flexBox);
+        fDSP->buildUserInterface(&layout);
+        getMinSize();
         
-        setSize (440, 800);
-        addAndMakeVisible(flexBox);
+        addAndMakeVisible(layout);
+        //layout.render();
+        
+        setSize (minWidth, minHeight);
         
         setAudioChannels (fDSP->getNumInputs(), fDSP->getNumOutputs());
         
@@ -68,13 +74,13 @@ public:
 
     void paint (Graphics& g) override
     {
-        flexBox.JuceUI::paint(g);
+        layout.Faust_layout::paint(g);
     }
     
     void resized() override
     {
-        flexBox.setFlexBoxSize(getWindowWidth(), getWindowHeight());
-        flexBox.JuceUI::resized();
+        layout.Faust_layout::setFlexBoxSize(getWindowWidth(), getWindowHeight());
+        layout.Faust_layout::resized();
         std::cout<<"Resizing.."<<std::endl;
         
     }
@@ -86,15 +92,28 @@ public:
     float getWindowWidth(){
         return this->getWidth();
     }
-    
+
+    int getMinWidth(){
+        return minWidth;
+    }
+
+    int getMinHeight(){
+        return minHeight;
+    }
+
+    void getMinSize(){
+        minHeight = layout.getMinimumHeight();
+        minWidth = layout.getMinimumWidth();
+    }
+
 private:
 
-    JuceUI flexBox;
-    
+    Faust_layout layout;
+
     ScopedPointer<mydsp> fDSP;
     
-    int minHeight = 800;
-    int minWidth = 400;
+    int minHeight = 300;
+    int minWidth = 200;
     
     Rectangle<int> screen = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
     int screenWidth = screen.getWidth();
@@ -107,7 +126,7 @@ private:
 
 
 // (This function is called by the app startup code to create our main component)
-Component* createMainContentComponent()     { return new MainContentComponent(); }
+MainContentComponent* createMainContentComponent()     { return new MainContentComponent(); }
 
 
 #endif

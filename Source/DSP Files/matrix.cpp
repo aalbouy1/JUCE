@@ -1,3 +1,13 @@
+#include <math.h>
+#include <algorithm>
+
+#include "faust/gui/UI.h"
+#include "faust/gui/meta.h"
+#include "faust/audio/dummy-audio.h"
+
+using std::max;
+using std::min;
+
 /* ------------------------------------------------------------
 author: "Grame"
 copyright: "(c)GRAME 2006"

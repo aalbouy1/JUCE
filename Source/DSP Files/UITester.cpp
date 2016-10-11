@@ -1,32 +1,3 @@
-//----------------------------------------------------------
-// name: "karplus32"
-// version: "1.0"
-// author: "Grame"
-// license: "BSD"
-// copyright: "(c)GRAME 2006"
-//
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
-//----------------------------------------------------------
-
-/* link with  */
-/************************************************************************
- ************************************************************************
- FAUST Architecture File
- Copyright (C) 2003-2011 GRAME, Centre National de Creation Musicale
- ---------------------------------------------------------------------
- 
- This is sample code. This file is provided as an example of minimal
- FAUST architecture file. Redistribution and use in source and binary
- forms, with or without modification, in part or in full are permitted.
- In particular you can create a derived work of this FAUST architecture
- and distribute that work under terms of your choice.
- 
- This sample code is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- ************************************************************************
- ************************************************************************/
-
 #include <math.h>
 #include <algorithm>
 
@@ -43,7 +14,7 @@ copyright: "(c) O. Guillerminet 2012"
 license: "BSD"
 name: "UITester"
 version: "1.0"
-Code generated with Faust 2.0.a46 (http://faust.grame.fr)
+Code generated with Faust 2.0.a51 (http://faust.grame.fr)
 ------------------------------------------------------------ */
 
 #ifndef  __mydsp_H__
@@ -63,6 +34,7 @@ class mydsp : public dsp {
 	
   private:
 	
+	int fSamplingFreq;
 	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT fCheckbox1;
 	FAUSTFLOAT fEntry0;
@@ -97,7 +69,6 @@ class mydsp : public dsp {
 	FAUSTFLOAT fEntry4;
 	FAUSTFLOAT fVbargraph3;
 	FAUSTFLOAT fHbargraph1;
-	int fSamplingFreq;
 	
   public:
 	
@@ -306,8 +277,12 @@ class mydsp : public dsp {
 		
 	}
 	
-	virtual void instanceInit(int samplingFreq) {
+	virtual void instanceConstants(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
+		
+	}
+	
+	virtual void instanceResetUserInterface() {
 		fCheckbox0 = FAUSTFLOAT(0.0f);
 		fCheckbox1 = FAUSTFLOAT(0.0f);
 		fEntry0 = FAUSTFLOAT(60.0f);
@@ -336,7 +311,7 @@ class mydsp : public dsp {
 		fButton1 = FAUSTFLOAT(0.0f);
 		fHslider1 = FAUSTFLOAT(60.0f);
 		fEntry4 = FAUSTFLOAT(60.0f);
-		instanceClear();
+		
 	}
 	
 	virtual void instanceClear() {
@@ -346,6 +321,11 @@ class mydsp : public dsp {
 	virtual void init(int samplingFreq) {
 		classInit(samplingFreq);
 		instanceInit(samplingFreq);
+	}
+	virtual void instanceInit(int samplingFreq) {
+		instanceConstants(samplingFreq);
+		instanceResetUserInterface();
+		instanceClear();
 	}
 	
 	virtual mydsp* clone() {

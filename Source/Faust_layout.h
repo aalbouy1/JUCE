@@ -1,73 +1,71 @@
 /************************************************************************
-    FAUST Architecture File
-    Copyright (C) 2003-2011 GRAME, Centre National de Creation Musicale
-    ---------------------------------------------------------------------
-    This Architecture section is free software; you can redistribute it
-    and/or modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 3 of
-    the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; If not, see <http://www.gnu.org/licenses/>.
-
-    EXCEPTION : As a special exception, you may create a larger work
-    that contains this FAUST architecture section and distribute
-    that work under terms of your choice, so long as this FAUST
-    architecture section is not modified.
-
-
+ FAUST Architecture File
+ Copyright (C) 2003-2011 GRAME, Centre National de Creation Musicale
+ ---------------------------------------------------------------------
+ This Architecture section is free software; you can redistribute it
+ and/or modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 3 of
+ the License, or (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; If not, see <http://www.gnu.org/licenses/>.
+ 
+ EXCEPTION : As a special exception, you may create a larger work
+ that contains this FAUST architecture section and distribute
+ that work under terms of your choice, so long as this FAUST
+ architecture section is not modified.
+ 
+ 
  ************************************************************************
  ************************************************************************/
 
-#ifndef FAUST_LAYOUTUI_H
-#define FAUST_LAYOUTUI_H
+#ifndef FAUST_LAYOUT_H
+#define FAUST_LAYOUT_H
+
+#include "../JuceLibraryCode/JuceHeader.h"
+
+#include "juceFlexBox.h"
+#include "Faust_tabs.h"
+
+#include "faust/gui/GUI.h"
 
 #ifndef FAUSTFLOAT
 #define FAUSTFLOAT float
 #endif
 
-#include "faust/gui/UI.h"
-#include <stack>
-#include <map>
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <assert.h>
+#define kKnobWidth 70
+#define kKnobHeight 70
 
-#define kKnobWidth 20
-#define kKnobHeight 20
+#define kVSliderWidth 110
+#define kVSliderHeight 250
 
-#define kVSliderWidth 150
-#define kVSliderHeight 300
-
-#define kHSliderWidth 300
-#define kHSliderHeight 150
+#define kHSliderWidth 350
+#define kHSliderHeight 100
 
 #define kButtonWidth 100
-#define kButtonHeight 100
+#define kButtonHeight 50
 
-#define kCheckButtonWidth 10
-#define kCheckButtonHeight 10
+#define kCheckButtonWidth 50
+#define kCheckButtonHeight 50
 
-#define kNumEntryWidth 50
-#define kNumEntryHeight 20
+#define kNumEntryWidth 100
+#define kNumEntryHeight 50
 
-#define kVBargraphWidth 20
+#define kVBargraphWidth 30
 #define kVBargraphHeight 100
 
-#define kHBargraphWidth 100
-#define kHBargraphHeight 20
+#define kHBargraphWidth 110
+#define kHBargraphHeight 30
 
 /*
-#define kHorizontalSpace 20
-#define kVerticalSpace 40
-*/
+ #define kHorizontalSpace 20
+ #define kVerticalSpace 40
+ */
 
 #define kHorizontalSpace 0
 #define kVerticalSpace 0
@@ -75,474 +73,323 @@
 #define kHorizontalBorder 50
 #define kVerticalBorder 50
 
-enum Layout {
-    kHorizontalLayout,
-    kVerticalLayout,
-    kTabLayout,
-    kNoLayout
-};
 
-struct LayoutComponent {
-    
-    virtual ~LayoutComponent()
-    {}
-    
-    virtual int getWidth() = 0;
-    virtual int getHeight() = 0;
-    
-    virtual void setRectangle(int x, int y, int w, int h) = 0;
-
-    virtual int getMinimumWidth() = 0;
-    virtual int getMinimumHeight() = 0;
-
-    virtual int getPreferredWidth() = 0;
-    virtual int getPreferredHeight() = 0;
-    
-    virtual void write(std::ostream* stream) = 0;
-    
-};
-
-struct LayoutRect : public LayoutComponent {
-    
-    int fX, fY, fW, fH, fMinW, fMinH;
-    
-    LayoutRect():fX(0), fY(0), fW(0), fH(0), fMinW(0), fMinH(0)
-    {}
-    LayoutRect(int minw, int minh):fX(0), fY(0), fW(0), fH(0), fMinW(minw), fMinH(minh)
-    {}
-    
-    virtual ~LayoutRect()
-    {}
-    
-    int getWidth() override { return fW; }
-    int getHeight() override { return fH; }
-    
-    void setRectangle(int x, int y, int w, int h) override
-    {
-        fX = x;
-        fY = y;
-        fW = w;
-        fH = h;
-    }
-    
-    int getMinimumWidth() override { return fMinW; }
-    int getMinimumHeight() override { return fMinH; }
-    
-    int getPreferredWidth() override { return fMinW + kHorizontalSpace/2; }
-    int getPreferredHeight() override { return fMinH + kVerticalSpace/2; }
-    
-    void write(std::ostream* stream) override
-    {
-        *stream << "fX " << fX << " fY " << fY
-        << " fW " << fW << " fH " << fH
-        << " fMinW " << fMinW << " fMinH " << fMinH
-        << std::endl;
-    }
-    
-};
-
-struct LayoutComponentGroup : public LayoutComponent {
-    
-    std::vector<LayoutComponent*> fComponents;
-    Layout fLayoutType;
-    
-    LayoutComponentGroup(Layout layout) : fLayoutType(layout)
-    {}
-    
-    virtual ~LayoutComponentGroup()
-    {
-        for (size_t i = 0; i < fComponents.size(); ++i) {
-            delete fComponents[i];
-        }
-    }
-    
-    void push(LayoutComponent* component) { fComponents.push_back(component); }
-    
-    int getWidth() override
-    {
-        int size = 0;
-        for (size_t i = 0; i < fComponents.size(); ++i) {
-            size += fComponents[i]->getWidth();
-        }
-        return size + (fComponents.size() - 1) * kHorizontalSpace;
-    }
-    
-    int getHeight() override
-    {
-        int size = 0;
-        for (size_t i = 0; i < fComponents.size(); ++i) {
-            size += fComponents[i]->getHeight();
-        }
-        return size + (fComponents.size() - 1) * kVerticalSpace;
-    }
-    
-    void setRectangle(int x, int y, int w, int h) override
-    {
-        int minimum_w = getPreferredWidth();
-        int minimum_h = getPreferredHeight();
-        
-        //if (minimum_w > w) {
-        //    std::cout << "setRectangle getPreferredWidth : " << minimum_w << " more than : " << w << std::endl;
-        //}
-        
-        //if (minimum_h > h) {
-        //    std::cout << "setRectangle getPreferredHeight : " << minimum_h << " more than : " << h << std::endl;
-        //}
-        
-        int cur_x = x;
-        int cur_y = y;
-        
-        /*
-        float ratio_x = float(w)/float(minimum_w);
-        float ratio_y = float(h)/float(minimum_h);
-        */
-        
-        float ratio_x = std::max(1.0f, float(w)/float(minimum_w));
-        float ratio_y = std::max(1.0f, float(h)/float(minimum_h));
-        
-        //std::cout << "setRectangle ratio_x : " << ratio_x << " ratio_y : " << ratio_y << std::endl;
-        
-        for (size_t i = 0; i < fComponents.size(); ++i) {
-            
-            /*
-            std::cout << "setRectangle Loop cur_x : " << cur_x << " cur_y : " << cur_y << std::endl;
-            std::cout << "setRectangle Loop getPreferredWidth : " << fComponents[i]->getPreferredWidth()
-                << " getPreferredHeight : " << fComponents[i]->getPreferredHeight() << std::endl;
-            */
-            
-             if (fLayoutType == kHorizontalLayout) {
-                 //cur_y = h/2 - (fComponents[i]->getPreferredHeight() * ratio_y)/2;
-                 //std::cout << "kHorizontalLayout cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
-                 fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
-                 cur_x += fComponents[i]->getPreferredWidth() * ratio_x;
-             }
-             
-             if (fLayoutType == kVerticalLayout) {
-                 //cur_x = w/2 - (fComponents[i]->getPreferredWidth() * ratio_x)/2;
-                 //std::cout << "kVerticalLayout cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
-                 fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
-                 cur_y += fComponents[i]->getPreferredHeight() * ratio_y;
-             }
-            
-            /*
-            if (fLayoutType == kHorizontalLayout) {
-                cur_y = h/2 - (fComponents[i]->getPreferredHeight() * ratio_y)/2;
-                std::cout << "kHorizontalLayout cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
-                fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
-                cur_x += (fComponents[i]->getPreferredWidth() + kHorizontalSpace) * ratio_x;
-            }
-            
-            if (fLayoutType == kVerticalLayout) {
-                cur_x = w/2 - (fComponents[i]->getPreferredWidth() * ratio_x)/2;
-                std::cout << "kVerticalLayout cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
-                fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
-                cur_y += (fComponents[i]->getPreferredHeight() + kVerticalSpace) * ratio_y;
-            }
-            */
-            
-            /*
-             fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getMinimumWidth(), fComponents[i]->getMinimumHeight());
-             
-             if (fLayoutType == kHorizontalLayout) { cur_x += fComponents[i]->getMinimumWidth() + kHorizontalSpace; }
-             if (fLayoutType == kVerticalLayout) { cur_y += fComponents[i]->getMinimumHeight() + kVerticalSpace; }
-             */
-            /*
-             if (fLayoutType == kHorizontalLayout) { cur_x += fComponents[i]->getPreferredWidth() * ratio_x; }
-             if (fLayoutType == kVerticalLayout) { cur_y += fComponents[i]->getPreferredHeight() * ratio_y; }
-             */
-            
-            
-            /*
-            if (fLayoutType == kHorizontalLayout) {
-                std::cout << "kHorizontalLayout " << "cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
-                fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
-                cur_x += (fComponents[i]->getPreferredWidth() + kHorizontalSpace) * ratio_x;
-                //cur_y = h/2 - (fComponents[i]->getPreferredHeight() * ratio_y)/2;
-            }
-            if (fLayoutType == kVerticalLayout) {
-                std::cout << "kVerticalLayout " << "cur_x : " << cur_x  << " cur_y : " << cur_y << std::endl;
-                fComponents[i]->setRectangle(cur_x, cur_y, fComponents[i]->getPreferredWidth() * ratio_x, fComponents[i]->getPreferredHeight() * ratio_y);
-                //cur_x = w/2 - (fComponents[i]->getPreferredWidth() * ratio_x)/2;
-                cur_y += (fComponents[i]->getPreferredHeight() + kVerticalSpace) * ratio_y;
-            }
-            */
-            
-        }
-    }
-    
-    int getMinimumWidth() override
-    {
-        int size = 0;
-        
-        if (fLayoutType == kHorizontalLayout) {
-            for (size_t i = 0; i < fComponents.size(); ++i) {
-                size += fComponents[i]->getMinimumWidth();
-            }
-            //std::cout << "getMinimumWidth LOOP "<< std::endl;
-            return size + (fComponents.size() - 1) * kHorizontalSpace;
-        } else {
-            for (size_t i = 0; i < fComponents.size(); ++i) {
-                size = std::max(size, fComponents[i]->getMinimumWidth());
-            }
-            //std::cout << "getMinimumWidth MAX "<< std::endl;
-            return size;
-        }
-    }
-    
-    int getMinimumHeight() override
-    {
-        int size = 0;
-        
-        if (fLayoutType == kVerticalLayout) {
-            for (size_t i = 0; i < fComponents.size(); ++i) {
-                size += fComponents[i]->getMinimumHeight();
-            }
-            //std::cout << "getMinimumHeight LOOP "<< std::endl;
-            return size + (fComponents.size() - 1) * kVerticalSpace;
-        } else {
-            for (size_t i = 0; i < fComponents.size(); ++i) {
-                size = std::max(size, fComponents[i]->getMinimumHeight());
-            }
-            //std::cout << "getMinimumHeight MAX "<< std::endl;
-            return size;
-        }
-    }
-    
-    int getPreferredWidth() override
-    {
-        int size = 0;
-        
-        //std::cout << "getPreferredWidth fComponents.size() "<< fComponents.size() << std::endl;
-        
-        if (fLayoutType == kHorizontalLayout) {
-            for (size_t i = 0; i < fComponents.size(); ++i) {
-                size += fComponents[i]->getPreferredWidth();
-                //std::cout << "getPreferredWidth LOOP in "<< size << std::endl;
-            }
-            int res = size + (fComponents.size() - 1) * kHorizontalSpace;
-            return res;
-            
-            //std::cout << "getPreferredWidth LOOP "<< res << std::endl;
-            //return size + (fComponents.size() - 1) * kHorizontalSpace;
-           
-        } else {
-            for (size_t i = 0; i < fComponents.size(); ++i) {
-                size = std::max(size, fComponents[i]->getPreferredWidth());
-            }
-            //std::cout << "getPreferredWidth MAX "<< size << std::endl;
-            return size;
-        }
-    }
-    
-    int getPreferredHeight() override
-    {
-        int size = 0;
-        
-        //std::cout << "getPreferredHeight fComponents.size() "<< fComponents.size() << std::endl;
-        
-        if (fLayoutType == kVerticalLayout) {
-            for (size_t i = 0; i < fComponents.size(); ++i) {
-                size += fComponents[i]->getPreferredHeight();
-            }
-            int res = size + (fComponents.size() - 1) * kVerticalSpace;
-            return res;
-            
-            //std::cout << "getPreferredHeight LOOP "<< res << std::endl;
-            //return size + (fComponents.size() - 1) * kVerticalSpace;
-            
-        } else {
-            for (size_t i = 0; i < fComponents.size(); ++i) {
-                size = std::max(size, fComponents[i]->getPreferredHeight());
-            }
-            //std::cout << "getPreferredHeight MAX "<< size << std::endl;
-            return size;
-        }
-    }
-    
-    void write(std::ostream* stream) override
-    {
-        for (size_t i = 0; i < fComponents.size(); ++i) {
-            fComponents[i]->write(stream);
-        }
-    }
-};
-
-/*******************************************************************************
- * LayoutManagerUI : Faust User Interface
- * This class computes the layout and allow to get a rectangle for each zone.
- ******************************************************************************/
-
-class LayoutManagerUI : public UI
+struct Faust_layout: public GUI, public Component
 {
-    private:
+    Faust_layout()
+    {
+        i = 0;
+        j = 0;
+        tabLayout = false;
+        tabCount = 0;
+        
+        /*curUI = new JuceUI();
+         curUI->setDirection(FlexBox::Direction::row);
+         curUI->addItem(this, Colours::green, nullptr, kVSliderWidth, kVSliderHeight, 50, 0, 100, 1, "Label", "Bloc", 0, 1, 1);*/
+    }
     
-        LayoutComponentGroup* fCurLayoutGroup;
-        std::stack<LayoutComponentGroup*> fLayoutGroupStack;
+    virtual ~Faust_layout() override{
+        
+}
     
-        std::map<FAUSTFLOAT*, LayoutRect*> fZoneLayout;
+    virtual void openTabBox(const char* label){
+        tabLayout = true;
+        tabName = String(label);
+        std::cout<<"openTabBox, j = "<<j<<", tabCount = "<<tabCount<<std::endl;
+    }
+    virtual void openHorizontalBox(const char* label){
+        if(j==0 && !tabLayout) {
+            verticalLayout = false;
+            curUI = new JuceUI();
+            curUI->setDirection(FlexBox::Direction::column);
+        }
+        else if (j == 0 && tabLayout){
+            verticalLayout = false;
+            curUI = new JuceUI();
+            curUI->setDirection(FlexBox::Direction::column);
+            tabName = String(label);
+        }
+        if(!tabLayout){
+            blocName = String(label);
+        }
+        j++;
+        std::cout<<"openHorizontal, j = "<<j<<std::endl;
+    }
+    virtual void openVerticalBox(const char* label){
+        if(j==0) {
+            verticalLayout = true;
+            curUI = new JuceUI();
+            curUI->setDirection(FlexBox::Direction::row);
+            blocName = String(label);
+        }
+        else if(j == 1 && tabLayout) {
+            curUI = new JuceUI();
+            curUI->setDirection(FlexBox::Direction::row);
+            verticalLayout = true;
+            tabName = String(label);
+        }
+        j++;
+        std::cout<<"openVertical, j = "<<j<<std::endl;
+    }
+    virtual void closeBox(){
+        j--;
+        if(j == 0 && tabLayout){
+            tabs.addTabs(tabName, curUI);
+            tabName.clear();
+            tabCount++;
+            addAndMakeVisible(tabs);
+        }
+        else if(j == 0 && !tabLayout){
+            addAndMakeVisible(curUI);
+        }
+        std::cout<<"closeBox, j = "<<j<<std::endl;
+        blocName.clear();
+    }
     
-        void openBox(const char* label, Layout layout)
-        {
-            LayoutComponentGroup* component = new LayoutComponentGroup(layout);
-            if (fCurLayoutGroup) {
-                fCurLayoutGroup->push(component);
-                fLayoutGroupStack.push(fCurLayoutGroup);
+    // -- active widgets
+    
+    virtual void addButton(const char* label, FAUSTFLOAT* zone)
+    {
+        itemWidth = kButtonWidth;
+        itemHeight = kButtonHeight;
+        itemBasis = screenWidth;
+        nbButton++;
+        boolButton = true;
+        
+        curUI->addItem(this, Colours::grey, zone, itemWidth, itemHeight, 0, 0, 0, 0, label, blocName, itemBasis, i, 6);
+        
+        i++;
+    }
+    virtual void addCheckButton(const char* label, FAUSTFLOAT* zone)
+    {
+        itemWidth = kCheckButtonWidth;
+        itemHeight = kCheckButtonHeight;
+        itemBasis = screenWidth;
+        nbCheckButton++;
+        boolCheckButton = true;
+        
+        curUI->addItem(this, Colours::grey, zone, itemWidth, itemHeight, 0, 0, 0, 0, label, blocName, itemBasis, i, 7);
+        
+        i++;
+    }
+    virtual void addVerticalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
+    {
+        itemWidth = kVSliderWidth;
+        itemHeight = kVSliderHeight;
+        verticalLayout ? itemBasis = 0 : itemBasis = screenWidth;
+        nbVSlider++;
+        boolVSlider = true;
+        std::cout<<"addVSlider"<<std::endl;
+        
+        curUI->addItem(this, Colours::grey, zone, itemWidth, itemHeight, init, min, max, step, label, blocName, itemBasis, i, 2);
+        
+        i++;
+    }
+    
+    virtual void addHorizontalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
+    {
+        itemWidth = kHSliderWidth;
+        itemHeight = kHSliderHeight;
+        verticalLayout ? itemBasis = screenWidth : itemBasis = 0;
+        nbHSlider++;
+        boolHSlider = true;
+        std::cout<<"addHSlider"<<std::endl;
+        
+        curUI->addItem(this, Colours::grey, zone, itemWidth, itemHeight, init, min, max, step, label, blocName, itemBasis, i, 1);
+        
+        i++;
+    }
+    
+    virtual void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
+    {
+        itemWidth = kNumEntryWidth;
+        itemHeight = kNumEntryHeight;
+        itemBasis = screenWidth;
+        nbNumEntry++;
+        boolNumEntry = true;
+        
+        curUI->addItem(this, Colours::grey, zone, itemWidth, itemHeight, init, min, max, step, label, blocName, itemBasis, i, 3);
+        
+        i++;
+    }
+    
+    // -- passive widgets
+    
+    virtual void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
+    {
+        itemWidth = kHBargraphWidth;
+        itemHeight = kHBargraphHeight;
+        verticalLayout ? itemBasis = screenWidth : itemBasis = 0;
+        nbHBargraph++;
+        boolHBargraph = true;
+        
+        curUI->addItem(this, Colours::grey, zone, itemWidth, itemHeight, 0.0, min, max, 0.0, label, blocName, itemBasis, i, 4);
+    }
+    virtual void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
+    {
+        itemWidth = kVBargraphWidth;
+        itemHeight = kVBargraphHeight;
+        verticalLayout ? itemBasis = 0 : itemBasis = screenWidth;
+        nbVBargraph++;
+        boolVBargraph = true;
+        
+        curUI->addItem(this, Colours::grey, zone, itemWidth, itemHeight, 0.0, min, max, 0.0, label, blocName, itemBasis, i, 5);
+    }
+    
+    // -- metadata declrations
+    
+    virtual void declare(FAUSTFLOAT* zone, const char* key, const char* value)
+    {
+        //MetaDataUI::declare(zone, key, value);
+    }
+    
+    int getMinimumWidth(){
+        if(tabLayout) { return 400; }
+        else{
+            int nbElem = boolHSlider + boolVSlider + boolButton + boolCheckButton + boolNumEntry + boolHBargraph + boolVBargraph;
+            int elemMinSize[nbElem];
+            int k = 0;
+            if(verticalLayout){
+                if(boolHSlider){
+                    elemMinSize[k] = kHSliderWidth;
+                    k++;
+                }
+                if(boolVSlider){
+                    elemMinSize[k] = nbVSlider * kVSliderWidth;
+                    k++;
+                }
+                if(boolButton){
+                    elemMinSize[k] = kButtonWidth;
+                    k++;
+                }
+                if(boolCheckButton){
+                    elemMinSize[k] = kCheckButtonWidth;
+                    k++;
+                }
+                if(boolNumEntry){
+                    elemMinSize[k] = kNumEntryWidth;
+                    k++;
+                }
+                if(boolHBargraph){
+                    elemMinSize[k] = kHBargraphWidth;
+                    k++;
+                }
+                if(boolVBargraph){
+                    elemMinSize[k] = nbVBargraph * kVBargraphWidth;
+                    k++;
+                }
+                std::cout<<"MinWidth : "<<*std::max_element(elemMinSize,elemMinSize+nbElem)<<std::endl;
+                minWidth = *std::max_element(elemMinSize,elemMinSize+nbElem);
+                return *std::max_element(elemMinSize,elemMinSize+nbElem);
             }
-            fCurLayoutGroup = component;
-        }
-   
-    public:
-
-        LayoutManagerUI():fCurLayoutGroup(nullptr)
-        {}
-
-        virtual ~LayoutManagerUI() { delete fCurLayoutGroup; }
-    
-        LayoutRect* getLayoutRect(FAUSTFLOAT* zone)
-        {
-            assert(fZoneLayout.find(zone) != fZoneLayout.end());
-            return fZoneLayout[zone];
-        }
-    
-        void setSize(int width, int height)
-        {
-            assert(fCurLayoutGroup);
-            //fCurLayoutGroup->setRectangle(50, 50, width - 50, height - 100);
-            fCurLayoutGroup->setRectangle(0, 0, width, height);
-        }
-
-        // -- widget's layouts
-
-        virtual void openTabBox(const char* label)
-        {
-            openBox(label, kTabLayout);
-            std::cout << "openTabBox label : " << label << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-        }
-    
-        virtual void openHorizontalBox(const char* label)
-        {
-            openBox(label, kHorizontalLayout);
-            std::cout << "openHorizontalBox label : " << label << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-        }
-    
-        virtual void openVerticalBox(const char* label)
-        {
-            openBox(label, kVerticalLayout);
-            std::cout << "openVerticalBox label : " << label << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-        }
-    
-        virtual void closeBox()
-        {
-            if (!fLayoutGroupStack.empty()) {
-                fCurLayoutGroup = fLayoutGroupStack.top();
-                fLayoutGroupStack.pop();
+            else{
+                int sum = 0;
+                sum += boolHSlider * kHSliderWidth;
+                sum += boolVSlider * nbVSlider * kVSliderWidth;
+                sum += boolButton * kButtonWidth;
+                sum += boolCheckButton *  kCheckButtonWidth;
+                sum += boolNumEntry *  kNumEntryWidth;
+                sum += boolHBargraph * kHBargraphWidth;
+                sum += boolVBargraph * nbVBargraph * kVBargraphWidth;
+                std::cout<<"MinWidth : "<<sum<<std::endl;
+                minWidth = sum;
+                return sum;
             }
-            std::cout << "closeBox" << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
         }
-
-        // -- active widgets
-
-        virtual void addButton(const char* label, FAUSTFLOAT* zone)
-        {
-            LayoutRect* rect = new LayoutRect(kButtonWidth, kButtonHeight);
-            fCurLayoutGroup->push(rect);
-            fZoneLayout[zone] = rect;
-            
-            std::cout << "addButton label : " << label << " zone " << zone << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-        }
+    }
     
-        virtual void addCheckButton(const char* label, FAUSTFLOAT* zone)
-        {
-            LayoutRect* rect = new LayoutRect(kCheckButtonWidth, kCheckButtonHeight);
-            fCurLayoutGroup->push(rect);
-            fZoneLayout[zone] = rect;
-            
-            std::cout << "addCheckButton label : " << label << " zone " << zone << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
+    int getMinimumHeight(){
+        if(tabLayout) { return 400; }
+        else{
+            int nbElem = boolHSlider + boolVSlider + boolButton + boolCheckButton + boolNumEntry + boolHBargraph + boolVBargraph;
+            int elemMinSize[nbElem];
+            int k = 0;
+            std::cout<<"HSlider : "<<nbHSlider<<", VSlider : "<<nbVSlider<<", Button  :"<<nbButton<<", CheckButton : "<<nbCheckButton<<", NumEntry : "<<nbNumEntry<<", HBargraph : "<<nbHBargraph<<", VBargraph : "<<nbVBargraph<<std::endl;
+            if(verticalLayout){
+                int sum = 0;
+                sum += boolHSlider * nbHSlider * kHSliderHeight;
+                sum += boolVSlider * kVSliderHeight;
+                sum += boolButton * nbButton * kButtonHeight;
+                sum += boolCheckButton * nbCheckButton * kCheckButtonHeight;
+                sum += boolNumEntry * nbNumEntry * kNumEntryHeight;
+                sum += boolHBargraph * nbHBargraph * kHBargraphHeight;
+                sum += boolVBargraph * kVBargraphHeight;
+                std::cout<<"MinHeight : "<<sum<<std::endl;
+                minHeight = sum;
+                return sum;
+            }
+            else{
+                if(boolHSlider){
+                    elemMinSize[k] = kHSliderHeight;
+                    k++;
+                }
+                if(boolVSlider){
+                    elemMinSize[k] = nbVSlider * kVSliderHeight;
+                    std::cout<<"VSlider "<<nbVSlider<<std::endl;
+                    k++;
+                }
+                if(boolButton){
+                    elemMinSize[k] = kButtonHeight;
+                    k++;
+                }
+                if(boolCheckButton){
+                    elemMinSize[k] = kCheckButtonHeight;
+                    k++;
+                }
+                if(boolNumEntry){
+                    elemMinSize[k] = kNumEntryHeight;
+                    k++;
+                }
+                if(boolHBargraph){
+                    elemMinSize[k] = kHBargraphHeight;
+                    k++;
+                }
+                if(boolVBargraph){
+                    elemMinSize[k] = nbVBargraph * kVBargraphHeight;
+                    std::cout<<"HBargraph "<<nbVBargraph<<std::endl;
+                    k++;
+                }
+                std::cout<<"MinHeight : "<<*std::max_element(elemMinSize,elemMinSize+nbElem)<<std::endl;
+                minHeight = *std::max_element(elemMinSize,elemMinSize+nbElem);
+                return *std::max_element(elemMinSize,elemMinSize+nbElem);
+            }
         }
+    }
     
-        virtual void addVerticalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
-        {
-            LayoutRect* rect = new LayoutRect(kVSliderWidth, kVSliderHeight);
-            fCurLayoutGroup->push(rect);
-            fZoneLayout[zone] = rect;
-            
-            std::cout << "addVerticalSlider label : " << label << " zone " << zone << " init : " << init
-                    << " min : " << min << " max : " << max << " step : " << step << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-        }
+    Rectangle<int> screen = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
+    int screenWidth = screen.getWidth();
+    int screenHeight = screen.getHeight();
+    bool verticalLayout;
+    bool tabLayout;
+    int tabCount;
+    int nbHSlider = 0, nbVSlider = 0, nbButton = 0, nbCheckButton = 0, nbNumEntry = 0, nbHBargraph = 0, nbVBargraph = 0;
+    bool boolHSlider = false, boolVSlider = false, boolButton = false, boolCheckButton = false, boolNumEntry = false, boolHBargraph = false, boolVBargraph = false;
     
-        virtual void addHorizontalSlider(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
-        {
-            LayoutRect* rect = new LayoutRect(kHSliderWidth, kHSliderHeight);
-            fCurLayoutGroup->push(rect);
-            fZoneLayout[zone] = rect;
-            
-            std::cout << "addHorizontalSlider label : " << label << " zone " << zone << " init : " << init
-                    << " min : " << min << " max : " << max << " step : " << step << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-        }
+    int minWidth, minHeight;
+    FAUSTFLOAT itemWidth, itemHeight;
+    int itemBasis;
+    String blocName, tabName;
     
-        virtual void addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
-        {
-            LayoutRect* rect = new LayoutRect(kNumEntryWidth, kNumEntryHeight);
-            fCurLayoutGroup->push(rect);
-            fZoneLayout[zone] = rect;
-            
-            std::cout << "addNumEntry label : " << label << " zone " << zone << " init : " << init
-                    << " min : " << min << " max : " << max << " step : " << step << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-        }
-
-        // -- passive widgets
-
-        virtual void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
-        {
-            LayoutRect* rect = new LayoutRect(kVBargraphWidth, kVBargraphHeight);
-            fCurLayoutGroup->push(rect);
-            fZoneLayout[zone] = rect;
-            
-            std::cout << "addHorizontalBargraph label : " << label << " zone " << zone
-                    << " min : " << min << " max : " << max << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-        }
+    FlexBox::Direction direction = FlexBox::Direction::row;
+    int i, j;
     
-        virtual void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
-        {
-            LayoutRect* rect = new LayoutRect(kHBargraphWidth, kHBargraphHeight);
-            fCurLayoutGroup->push(rect);
-            fZoneLayout[zone] = rect;
-            
-            std::cout << "addVerticalBargraph label : " << label << " zone " << zone
-                    << " min : " << min << " max : " << max << std::endl;
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-        }
-
-        // -- metadata declarations
-
-        virtual void declare(FAUSTFLOAT* zone, const char* key, const char* val)
-        {
-            std::cout << "declare key : " << key << " val : " << val << std::endl;
-        }
+    ScopedPointer<JuceUI> curUI;
+    Faust_tabs tabs;
     
-        void write(std::ostream* stream)
-        {
-            fCurLayoutGroup->write(stream);
-        }
+    void setFlexBoxSize(int w, int h){
+        setSize(w, h);
+        curUI->JuceUI::setFlexBoxSize(w, h);
+    }
     
-        LayoutRect* getZoneRect(FAUSTFLOAT* zone)
-        {
-            assert(fZoneLayout.find(zone) != fZoneLayout.end());
-            std::cout << "fZoneLayout size " << fZoneLayout.size() << std::endl;
-            fZoneLayout[zone]->write(&std::cout);
-            return fZoneLayout[zone];
-        }
+    void resized() override{
+    std::cout<<"Resizing layout..."<<std::endl;
+    if(tabLayout) { tabs.setBounds (getLocalBounds()); }
+    else { curUI->JuceUI::resized(); }
+    }
     
-};
-
-#endif // FAUST_LAYOUTUI_H
+    void paint(Graphics& g) override{
+        if(!tabLayout) { curUI->JuceUI::paint(g); }
+    }
+    };
+    
+#endif // FAUST_LAYOUT_H

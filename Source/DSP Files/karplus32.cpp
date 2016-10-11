@@ -1,32 +1,3 @@
-//----------------------------------------------------------
-// name: "karplus32"
-// version: "1.0"
-// author: "Grame"
-// license: "BSD"
-// copyright: "(c)GRAME 2006"
-//
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
-//----------------------------------------------------------
-
-/* link with  */
-/************************************************************************
- ************************************************************************
- FAUST Architecture File
- Copyright (C) 2003-2011 GRAME, Centre National de Creation Musicale
- ---------------------------------------------------------------------
- 
- This is sample code. This file is provided as an example of minimal
- FAUST architecture file. Redistribution and use in source and binary
- forms, with or without modification, in part or in full are permitted.
- In particular you can create a derived work of this FAUST architecture
- and distribute that work under terms of your choice.
- 
- This sample code is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- ************************************************************************
- ************************************************************************/
-
 #include <math.h>
 #include <algorithm>
 
@@ -43,7 +14,7 @@ copyright: "(c)GRAME 2006"
 license: "BSD"
 name: "karplus32"
 version: "1.0"
-Code generated with Faust 2.0.a46 (http://faust.grame.fr)
+Code generated with Faust 2.0.a51 (http://faust.grame.fr)
 ------------------------------------------------------------ */
 
 #ifndef  __mydsp_H__
@@ -63,6 +34,9 @@ class mydsp : public dsp {
 	
   private:
 	
+	int fSamplingFreq;
+	int IOTA;
+	int iRec1[2];
 	float fVec3[4096];
 	float fVec4[4096];
 	float fVec5[4096];
@@ -127,7 +101,6 @@ class mydsp : public dsp {
 	float fRec31[3];
 	float fRec32[3];
 	float fRec33[3];
-	int iRec1[2];
 	float fVec0[2];
 	float fRec2[2];
 	FAUSTFLOAT fHslider0;
@@ -136,10 +109,8 @@ class mydsp : public dsp {
 	FAUSTFLOAT fHslider3;
 	FAUSTFLOAT fButton0;
 	FAUSTFLOAT fHslider4;
-	int IOTA;
 	FAUSTFLOAT fHslider5;
 	FAUSTFLOAT fHslider6;
-	int fSamplingFreq;
 	
   public:
 	
@@ -206,17 +177,21 @@ class mydsp : public dsp {
 		
 	}
 	
-	virtual void instanceInit(int samplingFreq) {
+	virtual void instanceConstants(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
+		
+	}
+	
+	virtual void instanceResetUserInterface() {
 		fHslider0 = FAUSTFLOAT(0.5f);
-		fHslider1 = FAUSTFLOAT(8.0f);
+		fHslider1 = FAUSTFLOAT(1.0f);
 		fHslider2 = FAUSTFLOAT(0.10000000000000001f);
 		fHslider3 = FAUSTFLOAT(0.5f);
 		fButton0 = FAUSTFLOAT(0.0f);
 		fHslider4 = FAUSTFLOAT(128.0f);
 		fHslider5 = FAUSTFLOAT(128.0f);
 		fHslider6 = FAUSTFLOAT(32.0f);
-		instanceClear();
+		
 	}
 	
 	virtual void instanceClear() {
@@ -496,6 +471,11 @@ class mydsp : public dsp {
 		classInit(samplingFreq);
 		instanceInit(samplingFreq);
 	}
+	virtual void instanceInit(int samplingFreq) {
+		instanceConstants(samplingFreq);
+		instanceResetUserInterface();
+		instanceClear();
+	}
 	
 	virtual mydsp* clone() {
 		return new mydsp();
@@ -519,7 +499,7 @@ class mydsp : public dsp {
 		ui_interface->addHorizontalSlider("attenuation", &fHslider2, 0.100000001f, 0.0f, 1.0f, 0.00999999978f);
 		ui_interface->addHorizontalSlider("detune", &fHslider6, 32.0f, 0.0f, 512.0f, 1.0f);
 		ui_interface->addHorizontalSlider("duration (samples)", &fHslider5, 128.0f, 2.0f, 512.0f, 1.0f);
-		ui_interface->addHorizontalSlider("polyphony", &fHslider1, 8.0f, 0.0f, 32.0f, 1.0f);
+		ui_interface->addHorizontalSlider("polyphony", &fHslider1, 1.0f, 0.0f, 32.0f, 1.0f);
 		ui_interface->closeBox();
 		ui_interface->closeBox();
 		
@@ -536,139 +516,139 @@ class mydsp : public dsp {
 		float fSlow5 = float(fButton0);
 		float fSlow6 = (1.0f / float(fHslider4));
 		float fSlow7 = float(fHslider5);
-		int iSlow8 = (int((fSlow7 - 1.5f)) & 4095);
+		int iSlow8 = (int((fSlow7 + -1.5f)) & 4095);
 		int iSlow9 = (fSlow1 > 2.0f);
 		float fSlow10 = float(fHslider6);
-		int iSlow11 = (int((((2.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow11 = (int(((fSlow7 + (2.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow12 = (fSlow1 > 4.0f);
-		int iSlow13 = (int((((4.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow13 = (int(((fSlow7 + (4.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow14 = (fSlow1 > 6.0f);
-		int iSlow15 = (int((((6.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow15 = (int(((fSlow7 + (6.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow16 = (fSlow1 > 8.0f);
-		int iSlow17 = (int((((8.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow17 = (int(((fSlow7 + (8.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow18 = (fSlow1 > 10.0f);
-		int iSlow19 = (int((((10.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow19 = (int(((fSlow7 + (10.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow20 = (fSlow1 > 12.0f);
-		int iSlow21 = (int((((12.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow21 = (int(((fSlow7 + (12.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow22 = (fSlow1 > 14.0f);
-		int iSlow23 = (int((((14.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow23 = (int(((fSlow7 + (14.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow24 = (fSlow1 > 16.0f);
-		int iSlow25 = (int((((16.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow25 = (int(((fSlow7 + (16.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow26 = (fSlow1 > 18.0f);
-		int iSlow27 = (int((((18.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow27 = (int(((fSlow7 + (18.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow28 = (fSlow1 > 20.0f);
-		int iSlow29 = (int((((20.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow29 = (int(((fSlow7 + (20.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow30 = (fSlow1 > 22.0f);
-		int iSlow31 = (int((((22.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow31 = (int(((fSlow7 + (22.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow32 = (fSlow1 > 24.0f);
-		int iSlow33 = (int((((24.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow33 = (int(((fSlow7 + (24.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow34 = (fSlow1 > 26.0f);
-		int iSlow35 = (int((((26.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow35 = (int(((fSlow7 + (26.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow36 = (fSlow1 > 28.0f);
-		int iSlow37 = (int((((28.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow37 = (int(((fSlow7 + (28.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow38 = (fSlow1 > 30.0f);
-		int iSlow39 = (int((((30.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow39 = (int(((fSlow7 + (30.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow40 = (fSlow1 > 1.0f);
-		int iSlow41 = (int(((fSlow7 + fSlow10) - 1.5f)) & 4095);
+		int iSlow41 = (int(((fSlow7 + fSlow10) + -1.5f)) & 4095);
 		int iSlow42 = (fSlow1 > 3.0f);
-		int iSlow43 = (int((((3.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow43 = (int(((fSlow7 + (3.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow44 = (fSlow1 > 5.0f);
-		int iSlow45 = (int((((5.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow45 = (int(((fSlow7 + (5.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow46 = (fSlow1 > 7.0f);
-		int iSlow47 = (int((((7.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow47 = (int(((fSlow7 + (7.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow48 = (fSlow1 > 9.0f);
-		int iSlow49 = (int((((9.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow49 = (int(((fSlow7 + (9.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow50 = (fSlow1 > 11.0f);
-		int iSlow51 = (int((((11.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow51 = (int(((fSlow7 + (11.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow52 = (fSlow1 > 13.0f);
-		int iSlow53 = (int((((13.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow53 = (int(((fSlow7 + (13.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow54 = (fSlow1 > 15.0f);
-		int iSlow55 = (int((((15.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow55 = (int(((fSlow7 + (15.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow56 = (fSlow1 > 17.0f);
-		int iSlow57 = (int((((17.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow57 = (int(((fSlow7 + (17.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow58 = (fSlow1 > 19.0f);
-		int iSlow59 = (int((((19.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow59 = (int(((fSlow7 + (19.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow60 = (fSlow1 > 21.0f);
-		int iSlow61 = (int((((21.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow61 = (int(((fSlow7 + (21.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow62 = (fSlow1 > 23.0f);
-		int iSlow63 = (int((((23.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow63 = (int(((fSlow7 + (23.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow64 = (fSlow1 > 25.0f);
-		int iSlow65 = (int((((25.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow65 = (int(((fSlow7 + (25.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow66 = (fSlow1 > 27.0f);
-		int iSlow67 = (int((((27.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow67 = (int(((fSlow7 + (27.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow68 = (fSlow1 > 29.0f);
-		int iSlow69 = (int((((29.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow69 = (int(((fSlow7 + (29.0f * fSlow10)) + -1.5f)) & 4095);
 		int iSlow70 = (fSlow1 > 31.0f);
-		int iSlow71 = (int((((31.0f * fSlow10) + fSlow7) - 1.5f)) & 4095);
+		int iSlow71 = (int(((fSlow7 + (31.0f * fSlow10)) + -1.5f)) & 4095);
 		for (int i = 0; (i < count); i = (i + 1)) {
-			iRec1[0] = (12345 + (1103515245 * iRec1[1]));
+			iRec1[0] = ((1103515245 * iRec1[1]) + 12345);
 			fVec0[0] = fSlow5;
 			fRec2[0] = ((float(((fSlow5 - fVec0[1]) > 0.0f)) + fRec2[1]) - (fSlow6 * float((fRec2[1] > 0.0f))));
-			float fTemp0 = (fSlow4 * (float(iRec1[0]) * (1.52587891e-05f + float((fRec2[0] > 0.0f)))));
+			float fTemp0 = (fSlow4 * (float(iRec1[0]) * (float((fRec2[0] > 0.0f)) + 1.52587891e-05f)));
 			fVec1[(IOTA & 511)] = ((fSlow3 * (fRec0[1] + fRec0[2])) + fTemp0);
 			fRec0[0] = fVec1[((IOTA - iSlow8) & 511)];
-			fVec2[(IOTA & 2047)] = ((fSlow3 * (fRec3[1] + fRec3[2])) + fTemp0);
+			fVec2[(IOTA & 2047)] = (fTemp0 + (fSlow3 * (fRec3[1] + fRec3[2])));
 			fRec3[0] = fVec2[((IOTA - iSlow11) & 2047)];
-			fVec3[(IOTA & 4095)] = ((fSlow3 * (fRec4[1] + fRec4[2])) + fTemp0);
+			fVec3[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec4[1] + fRec4[2])));
 			fRec4[0] = fVec3[((IOTA - iSlow13) & 4095)];
-			fVec4[(IOTA & 4095)] = ((fSlow3 * (fRec5[1] + fRec5[2])) + fTemp0);
+			fVec4[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec5[1] + fRec5[2])));
 			fRec5[0] = fVec4[((IOTA - iSlow15) & 4095)];
-			fVec5[(IOTA & 4095)] = ((fSlow3 * (fRec6[1] + fRec6[2])) + fTemp0);
+			fVec5[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec6[1] + fRec6[2])));
 			fRec6[0] = fVec5[((IOTA - iSlow17) & 4095)];
-			fVec6[(IOTA & 4095)] = ((fSlow3 * (fRec7[1] + fRec7[2])) + fTemp0);
+			fVec6[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec7[1] + fRec7[2])));
 			fRec7[0] = fVec6[((IOTA - iSlow19) & 4095)];
-			fVec7[(IOTA & 4095)] = ((fSlow3 * (fRec8[1] + fRec8[2])) + fTemp0);
+			fVec7[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec8[1] + fRec8[2])));
 			fRec8[0] = fVec7[((IOTA - iSlow21) & 4095)];
-			fVec8[(IOTA & 4095)] = ((fSlow3 * (fRec9[1] + fRec9[2])) + fTemp0);
+			fVec8[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec9[1] + fRec9[2])));
 			fRec9[0] = fVec8[((IOTA - iSlow23) & 4095)];
-			fVec9[(IOTA & 4095)] = ((fSlow3 * (fRec10[1] + fRec10[2])) + fTemp0);
+			fVec9[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec10[1] + fRec10[2])));
 			fRec10[0] = fVec9[((IOTA - iSlow25) & 4095)];
-			fVec10[(IOTA & 4095)] = ((fSlow3 * (fRec11[1] + fRec11[2])) + fTemp0);
+			fVec10[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec11[1] + fRec11[2])));
 			fRec11[0] = fVec10[((IOTA - iSlow27) & 4095)];
-			fVec11[(IOTA & 4095)] = ((fSlow3 * (fRec12[1] + fRec12[2])) + fTemp0);
+			fVec11[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec12[1] + fRec12[2])));
 			fRec12[0] = fVec11[((IOTA - iSlow29) & 4095)];
-			fVec12[(IOTA & 4095)] = ((fSlow3 * (fRec13[1] + fRec13[2])) + fTemp0);
+			fVec12[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec13[1] + fRec13[2])));
 			fRec13[0] = fVec12[((IOTA - iSlow31) & 4095)];
-			fVec13[(IOTA & 4095)] = ((fSlow3 * (fRec14[1] + fRec14[2])) + fTemp0);
+			fVec13[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec14[1] + fRec14[2])));
 			fRec14[0] = fVec13[((IOTA - iSlow33) & 4095)];
-			fVec14[(IOTA & 4095)] = ((fSlow3 * (fRec15[1] + fRec15[2])) + fTemp0);
+			fVec14[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec15[1] + fRec15[2])));
 			fRec15[0] = fVec14[((IOTA - iSlow35) & 4095)];
-			fVec15[(IOTA & 4095)] = ((fSlow3 * (fRec16[1] + fRec16[2])) + fTemp0);
+			fVec15[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec16[1] + fRec16[2])));
 			fRec16[0] = fVec15[((IOTA - iSlow37) & 4095)];
-			fVec16[(IOTA & 4095)] = ((fSlow3 * (fRec17[1] + fRec17[2])) + fTemp0);
+			fVec16[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec17[1] + fRec17[2])));
 			fRec17[0] = fVec16[((IOTA - iSlow39) & 4095)];
 			output0[i] = FAUSTFLOAT((fSlow0 * ((((((((((((((((float(iSlow2) * fRec0[0]) + (float(iSlow9) * fRec3[0])) + (float(iSlow12) * fRec4[0])) + (float(iSlow14) * fRec5[0])) + (float(iSlow16) * fRec6[0])) + (float(iSlow18) * fRec7[0])) + (float(iSlow20) * fRec8[0])) + (float(iSlow22) * fRec9[0])) + (float(iSlow24) * fRec10[0])) + (float(iSlow26) * fRec11[0])) + (float(iSlow28) * fRec12[0])) + (float(iSlow30) * fRec13[0])) + (float(iSlow32) * fRec14[0])) + (float(iSlow34) * fRec15[0])) + (float(iSlow36) * fRec16[0])) + (float(iSlow38) * fRec17[0]))));
-			fVec17[(IOTA & 1023)] = ((fSlow3 * (fRec18[1] + fRec18[2])) + fTemp0);
+			fVec17[(IOTA & 1023)] = (fTemp0 + (fSlow3 * (fRec18[1] + fRec18[2])));
 			fRec18[0] = fVec17[((IOTA - iSlow41) & 1023)];
-			fVec18[(IOTA & 2047)] = ((fSlow3 * (fRec19[1] + fRec19[2])) + fTemp0);
+			fVec18[(IOTA & 2047)] = (fTemp0 + (fSlow3 * (fRec19[1] + fRec19[2])));
 			fRec19[0] = fVec18[((IOTA - iSlow43) & 2047)];
-			fVec19[(IOTA & 4095)] = ((fSlow3 * (fRec20[1] + fRec20[2])) + fTemp0);
+			fVec19[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec20[1] + fRec20[2])));
 			fRec20[0] = fVec19[((IOTA - iSlow45) & 4095)];
-			fVec20[(IOTA & 4095)] = ((fSlow3 * (fRec21[1] + fRec21[2])) + fTemp0);
+			fVec20[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec21[1] + fRec21[2])));
 			fRec21[0] = fVec20[((IOTA - iSlow47) & 4095)];
-			fVec21[(IOTA & 4095)] = ((fSlow3 * (fRec22[1] + fRec22[2])) + fTemp0);
+			fVec21[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec22[1] + fRec22[2])));
 			fRec22[0] = fVec21[((IOTA - iSlow49) & 4095)];
-			fVec22[(IOTA & 4095)] = ((fSlow3 * (fRec23[1] + fRec23[2])) + fTemp0);
+			fVec22[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec23[1] + fRec23[2])));
 			fRec23[0] = fVec22[((IOTA - iSlow51) & 4095)];
-			fVec23[(IOTA & 4095)] = ((fSlow3 * (fRec24[1] + fRec24[2])) + fTemp0);
+			fVec23[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec24[1] + fRec24[2])));
 			fRec24[0] = fVec23[((IOTA - iSlow53) & 4095)];
-			fVec24[(IOTA & 4095)] = ((fSlow3 * (fRec25[1] + fRec25[2])) + fTemp0);
+			fVec24[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec25[1] + fRec25[2])));
 			fRec25[0] = fVec24[((IOTA - iSlow55) & 4095)];
-			fVec25[(IOTA & 4095)] = ((fSlow3 * (fRec26[1] + fRec26[2])) + fTemp0);
+			fVec25[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec26[1] + fRec26[2])));
 			fRec26[0] = fVec25[((IOTA - iSlow57) & 4095)];
-			fVec26[(IOTA & 4095)] = ((fSlow3 * (fRec27[1] + fRec27[2])) + fTemp0);
+			fVec26[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec27[1] + fRec27[2])));
 			fRec27[0] = fVec26[((IOTA - iSlow59) & 4095)];
-			fVec27[(IOTA & 4095)] = ((fSlow3 * (fRec28[1] + fRec28[2])) + fTemp0);
+			fVec27[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec28[1] + fRec28[2])));
 			fRec28[0] = fVec27[((IOTA - iSlow61) & 4095)];
-			fVec28[(IOTA & 4095)] = ((fSlow3 * (fRec29[1] + fRec29[2])) + fTemp0);
+			fVec28[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec29[1] + fRec29[2])));
 			fRec29[0] = fVec28[((IOTA - iSlow63) & 4095)];
-			fVec29[(IOTA & 4095)] = ((fSlow3 * (fRec30[1] + fRec30[2])) + fTemp0);
+			fVec29[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec30[1] + fRec30[2])));
 			fRec30[0] = fVec29[((IOTA - iSlow65) & 4095)];
-			fVec30[(IOTA & 4095)] = ((fSlow3 * (fRec31[1] + fRec31[2])) + fTemp0);
+			fVec30[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec31[1] + fRec31[2])));
 			fRec31[0] = fVec30[((IOTA - iSlow67) & 4095)];
-			fVec31[(IOTA & 4095)] = ((fSlow3 * (fRec32[1] + fRec32[2])) + fTemp0);
+			fVec31[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec32[1] + fRec32[2])));
 			fRec32[0] = fVec31[((IOTA - iSlow69) & 4095)];
-			fVec32[(IOTA & 4095)] = ((fSlow3 * (fRec33[1] + fRec33[2])) + fTemp0);
+			fVec32[(IOTA & 4095)] = (fTemp0 + (fSlow3 * (fRec33[1] + fRec33[2])));
 			fRec33[0] = fVec32[((IOTA - iSlow71) & 4095)];
 			output1[i] = FAUSTFLOAT((fSlow0 * ((((((((((((((((float(iSlow40) * fRec18[0]) + (float(iSlow42) * fRec19[0])) + (float(iSlow44) * fRec20[0])) + (float(iSlow46) * fRec21[0])) + (float(iSlow48) * fRec22[0])) + (float(iSlow50) * fRec23[0])) + (float(iSlow52) * fRec24[0])) + (float(iSlow54) * fRec25[0])) + (float(iSlow56) * fRec26[0])) + (float(iSlow58) * fRec27[0])) + (float(iSlow60) * fRec28[0])) + (float(iSlow62) * fRec29[0])) + (float(iSlow64) * fRec30[0])) + (float(iSlow66) * fRec31[0])) + (float(iSlow68) * fRec32[0])) + (float(iSlow70) * fRec33[0]))));
 			iRec1[1] = iRec1[0];

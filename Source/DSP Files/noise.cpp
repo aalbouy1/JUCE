@@ -1,32 +1,3 @@
-//----------------------------------------------------------
-// name: "karplus32"
-// version: "1.0"
-// author: "Grame"
-// license: "BSD"
-// copyright: "(c)GRAME 2006"
-//
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
-//----------------------------------------------------------
-
-/* link with  */
-/************************************************************************
- ************************************************************************
- FAUST Architecture File
- Copyright (C) 2003-2011 GRAME, Centre National de Creation Musicale
- ---------------------------------------------------------------------
- 
- This is sample code. This file is provided as an example of minimal
- FAUST architecture file. Redistribution and use in source and binary
- forms, with or without modification, in part or in full are permitted.
- In particular you can create a derived work of this FAUST architecture
- and distribute that work under terms of your choice.
- 
- This sample code is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- ************************************************************************
- ************************************************************************/
-
 #include <math.h>
 #include <algorithm>
 
@@ -37,30 +8,13 @@
 using std::max;
 using std::min;
 
-/******************************************************************************
- *******************************************************************************
- 
- VECTOR INTRINSICS
- 
- *******************************************************************************
- *******************************************************************************/
-
-
-/******************************************************************************
- *******************************************************************************
- 
- ABSTRACT USER INTERFACE
- 
- *******************************************************************************
- *******************************************************************************/
-
 /* ------------------------------------------------------------
 author: "Grame"
 copyright: "(c)GRAME 2009"
 license: "BSD"
 name: "Noise"
 version: "1.1"
-Code generated with Faust 2.0.a46 (http://faust.grame.fr)
+Code generated with Faust 2.0.a51 (http://faust.grame.fr)
 ------------------------------------------------------------ */
 
 #ifndef  __mydsp_H__
@@ -80,9 +34,9 @@ class mydsp : public dsp {
 	
   private:
 	
+	int fSamplingFreq;
 	int iRec0[2];
 	FAUSTFLOAT fVslider0;
-	int fSamplingFreq;
 	
   public:
 	
@@ -135,10 +89,14 @@ class mydsp : public dsp {
 		
 	}
 	
-	virtual void instanceInit(int samplingFreq) {
+	virtual void instanceConstants(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
-		fVslider0 = FAUSTFLOAT(0.5f);
-		instanceClear();
+		
+	}
+	
+	virtual void instanceResetUserInterface() {
+		fVslider0 = FAUSTFLOAT(0.20000000000000001f);
+		
 	}
 	
 	virtual void instanceClear() {
@@ -153,6 +111,11 @@ class mydsp : public dsp {
 		classInit(samplingFreq);
 		instanceInit(samplingFreq);
 	}
+	virtual void instanceInit(int samplingFreq) {
+		instanceConstants(samplingFreq);
+		instanceResetUserInterface();
+		instanceClear();
+	}
 	
 	virtual mydsp* clone() {
 		return new mydsp();
@@ -164,9 +127,8 @@ class mydsp : public dsp {
 	
 	virtual void buildUserInterface(UI* ui_interface) {
 		ui_interface->openVerticalBox("0x00");
-		ui_interface->declare(&fVslider0, "acc", "0 0 -10 0 10");
 		ui_interface->declare(&fVslider0, "style", "knob");
-		ui_interface->addVerticalSlider("Volume", &fVslider0, 0.5f, 0.0f, 1.0f, 0.100000001f);
+		ui_interface->addVerticalSlider("Volume", &fVslider0, 0.200000003f, 0.0f, 1.0f, 0.100000001f);
 		ui_interface->closeBox();
 		
 	}
@@ -175,7 +137,7 @@ class mydsp : public dsp {
 		FAUSTFLOAT* output0 = outputs[0];
 		float fSlow0 = (4.65661287e-10f * float(fVslider0));
 		for (int i = 0; (i < count); i = (i + 1)) {
-			iRec0[0] = (12345 + (1103515245 * iRec0[1]));
+			iRec0[0] = ((1103515245 * iRec0[1]) + 12345);
 			output0[i] = FAUSTFLOAT((fSlow0 * float(iRec0[0])));
 			iRec0[1] = iRec0[0];
 			

@@ -6,8 +6,6 @@
   <MAINGROUP id="el7QNr" name="Faust">
     <GROUP id="{364FAB91-3320-C86D-1E91-326184687C8D}" name="Source">
       <GROUP id="{2D685ACA-0945-C03F-BB09-1C498DCE2414}" name="DSP Files">
-        <FILE id="T3TCxO" name="faust_dsp - tab.h" compile="0" resource="0"
-              file="Source/DSP Files/faust_dsp - tab.h"/>
         <FILE id="g8lluw" name="faust_dsp.h" compile="0" resource="0" file="Source/DSP Files/faust_dsp.h"/>
         <FILE id="oq2crE" name="karplus.cpp" compile="0" resource="0" file="Source/DSP Files/karplus.cpp"/>
         <FILE id="llhYjo" name="karplus32.cpp" compile="0" resource="0" file="Source/DSP Files/karplus32.cpp"/>

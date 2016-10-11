@@ -8,12 +8,19 @@
 // Select here the compiled DSP that you want to executev  
 //#include "DSP files/noise.cpp"
 //#include "DSP files/kisana.cpp"
+<<<<<<< HEAD
 //#include "DSP files/faust_dsp.h"
 //#include "DSP Files/faust_dsp - tab.h"
 //#include "DSP Files/matrix.cpp"
 #include "DSP files/karplus.cpp"
 //#include "DSP Files/karplus32.cpp"
 //#include "DSP Files/UITester.cpp"
+=======
+#include "DSP files/faust_dsp.h"
+//#include "DSP files/faust_dsp - tab.h"
+//#include "DSP files/karplus.cpp"
+//#include "DSP Files/karplus32.cpp"
+>>>>>>> f8f6f7f91bec8d2105baca28e416d84de417da3c
 
 std::list<GUI*> GUI::fGuiList;
 
@@ -24,6 +31,7 @@ public:
     {
         fDSP = new mydsp();
         
+<<<<<<< HEAD
         fDSP->buildUserInterface(&layout);
         getMinSize();
         
@@ -31,6 +39,13 @@ public:
         //layout.render();
         
         setSize (minWidth, minHeight);
+=======
+        fDSP->buildUserInterface(&flexBox);
+        getMinSize();
+        
+        setSize (minWidth, minHeight);
+        addAndMakeVisible(flexBox);
+>>>>>>> f8f6f7f91bec8d2105baca28e416d84de417da3c
         
         setAudioChannels (fDSP->getNumInputs(), fDSP->getNumOutputs());
         
@@ -102,18 +117,31 @@ public:
     }
 
     void getMinSize(){
+<<<<<<< HEAD
         minHeight = layout.getMinimumHeight();
         minWidth = layout.getMinimumWidth();
     }
 
+=======
+        minHeight = flexBox.getMinimumHeight();
+        minWidth = flexBox.getMinimumWidth();
+    }
+
+
+>>>>>>> f8f6f7f91bec8d2105baca28e416d84de417da3c
 private:
 
     Faust_layout layout;
 
     ScopedPointer<mydsp> fDSP;
     
+<<<<<<< HEAD
     int minHeight = 300;
     int minWidth = 200;
+=======
+    int minHeight = 400;
+    int minWidth = 400;
+>>>>>>> f8f6f7f91bec8d2105baca28e416d84de417da3c
     
     Rectangle<int> screen = Desktop::getInstance().getDisplays().getMainDisplay().userArea;
     int screenWidth = screen.getWidth();

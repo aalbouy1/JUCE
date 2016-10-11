@@ -1380,7 +1380,6 @@ public:
         return fSamplingFreq;
     }
     
-    
     virtual void buildUserInterface(UI* ui_interface) {
         ui_interface->openVerticalBox("0x00");
         
